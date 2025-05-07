@@ -14,6 +14,8 @@ class Book {
     public $total_copies;
     public $available_copies;
     public $created_at;
+    public $description; // New property for book description
+    public $cover_image; // New property for book cover image URL
 
     public function __construct($db) {
         $this->conn = $db;
@@ -22,8 +24,8 @@ class Book {
     // Create book
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                  (isbn, title, author, category, publication_year, publisher, total_copies, available_copies) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                  (isbn, title, author, category, publication_year, publisher, total_copies, available_copies, description, cover_image) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $this->conn->prepare($query);
 
@@ -36,6 +38,8 @@ class Book {
         $this->publisher = htmlspecialchars(strip_tags($this->publisher));
         $this->total_copies = htmlspecialchars(strip_tags($this->total_copies));
         $this->available_copies = htmlspecialchars(strip_tags($this->available_copies));
+        $this->description = htmlspecialchars(strip_tags($this->description));
+        $this->cover_image = htmlspecialchars(strip_tags($this->cover_image));
 
         // Bind values
         $stmt->bindParam(1, $this->isbn);
@@ -46,6 +50,8 @@ class Book {
         $stmt->bindParam(6, $this->publisher);
         $stmt->bindParam(7, $this->total_copies);
         $stmt->bindParam(8, $this->available_copies);
+        $stmt->bindParam(9, $this->description);
+        $stmt->bindParam(10, $this->cover_image);
 
         // Execute query
         if ($stmt->execute()) {
@@ -89,6 +95,8 @@ class Book {
             $this->total_copies = $row['total_copies'];
             $this->available_copies = $row['available_copies'];
             $this->created_at = $row['created_at'];
+            $this->description = $row['description'] ?? '';
+            $this->cover_image = $row['cover_image'] ?? '';
             return true;
         }
         
@@ -99,7 +107,8 @@ class Book {
     public function update() {
         $query = "UPDATE " . $this->table_name . " 
                   SET isbn = ?, title = ?, author = ?, category = ?, 
-                      publication_year = ?, publisher = ?, total_copies = ?, available_copies = ? 
+                      publication_year = ?, publisher = ?, total_copies = ?, 
+                      available_copies = ?, description = ?, cover_image = ? 
                   WHERE id = ?";
 
         $stmt = $this->conn->prepare($query);
@@ -113,6 +122,8 @@ class Book {
         $this->publisher = htmlspecialchars(strip_tags($this->publisher));
         $this->total_copies = htmlspecialchars(strip_tags($this->total_copies));
         $this->available_copies = htmlspecialchars(strip_tags($this->available_copies));
+        $this->description = htmlspecialchars(strip_tags($this->description));
+        $this->cover_image = htmlspecialchars(strip_tags($this->cover_image));
         $this->id = htmlspecialchars(strip_tags($this->id));
 
         // Bind values
@@ -124,7 +135,9 @@ class Book {
         $stmt->bindParam(6, $this->publisher);
         $stmt->bindParam(7, $this->total_copies);
         $stmt->bindParam(8, $this->available_copies);
-        $stmt->bindParam(9, $this->id);
+        $stmt->bindParam(9, $this->description);
+        $stmt->bindParam(10, $this->cover_image);
+        $stmt->bindParam(11, $this->id);
 
         // Execute query
         if ($stmt->execute()) {
@@ -194,5 +207,24 @@ class Book {
         $stmt->bindParam(1, $this->id);
         
         return $stmt->execute();
+    }
+    
+    // Generate description using Gemini AI
+    public function generateDescription() {
+        require_once 'helpers/GeminiHelper.php';
+        
+        try {
+            $gemini = new GeminiHelper();
+            $description = $gemini->generateBookDescription($this->title, $this->author, $this->category);
+            
+            if ($description) {
+                $this->description = $description;
+                return true;
+            }
+        } catch (Exception $e) {
+            error_log('Gemini Generation Error: ' . $e->getMessage());
+        }
+        
+        return false;
     }
 }

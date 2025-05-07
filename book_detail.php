@@ -63,10 +63,15 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row">
                         <div class="col-md-4">
                             <div class="text-center mb-3">
+                                <?php if (!empty($book->cover_image)): ?>
+                                <!-- Display book cover image -->
+                                <img src="<?php echo htmlspecialchars($book->cover_image); ?>" alt="Book Cover" class="img-thumbnail" style="max-height: 250px;">
+                                <?php else: ?>
                                 <!-- Placeholder book cover -->
-                                <div class="bg-light p-4 border rounded" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                <div class="bg-light p-4 border rounded" style="height: 250px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-book fa-5x text-secondary"></i>
                                 </div>
+                                <?php endif; ?>
                             </div>
                             <div class="d-grid gap-2">
                                 <?php if($auth->isLoggedIn() && $book->available_copies > 0): ?>
@@ -132,6 +137,13 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </tr>
                                 </tbody>
                             </table>
+                            
+                            <?php if (!empty($book->description)): ?>
+                            <div class="mt-3">
+                                <h5>Description</h5>
+                                <p><?php echo nl2br(htmlspecialchars($book->description)); ?></p>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -179,7 +191,7 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="card-body">
                     <?php
                     // Get similar books by same author or category
-                    $similar_query = "SELECT id, title, author 
+                    $similar_query = "SELECT id, title, author, cover_image
                                      FROM books 
                                      WHERE (author = ? OR category = ?) 
                                      AND id != ? 
@@ -193,17 +205,33 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     
                     if(count($similar_books) > 0):
                     ?>
-                    <ul class="list-group">
+                    <div class="row">
                         <?php foreach($similar_books as $similar): ?>
-                        <li class="list-group-item">
-                            <a href="book_detail.php?id=<?php echo $similar['id']; ?>" class="text-decoration-none">
-                                <?php echo htmlspecialchars($similar['title']); ?>
-                            </a>
-                            <br>
-                            <small>by <?php echo htmlspecialchars($similar['author']); ?></small>
-                        </li>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="text-center pt-2">
+                                    <?php if (!empty($similar['cover_image'])): ?>
+                                    <!-- Display book cover image -->
+                                    <img src="<?php echo htmlspecialchars($similar['cover_image']); ?>" alt="Book Cover" class="img-thumbnail" style="height: 100px;">
+                                    <?php else: ?>
+                                    <!-- Placeholder book cover -->
+                                    <div class="bg-light border rounded mx-auto" style="height: 100px; width: 70px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-book fa-2x text-secondary"></i>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">
+                                        <a href="book_detail.php?id=<?php echo $similar['id']; ?>" class="text-decoration-none">
+                                            <?php echo htmlspecialchars($similar['title']); ?>
+                                        </a>
+                                    </h6>
+                                    <p class="card-text small">by <?php echo htmlspecialchars($similar['author']); ?></p>
+                                </div>
+                            </div>
+                        </div>
                         <?php endforeach; ?>
-                    </ul>
+                    </div>
                     <?php else: ?>
                     <p class="text-muted">No similar books found.</p>
                     <?php endif; ?>

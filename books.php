@@ -17,6 +17,7 @@ $book = new Book($db);
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $records_per_page = 10;
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$view = isset($_GET['view']) ? trim($_GET['view']) : 'list'; // list or grid view
 
 // Get books based on search or all
 if (!empty($search)) {
@@ -34,24 +35,36 @@ $total_pages = ceil($total_rows / $records_per_page);
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Books Catalog</h1>
-        <?php if($auth->isLibrarian()): ?>
-        <a href="books_manage.php?action=add" class="btn btn-success">
-            <i class="fas fa-plus-circle me-2"></i>Add New Book
-        </a>
-        <?php endif; ?>
+        <div>
+            <div class="btn-group me-2" role="group">
+                <a href="?view=list<?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?>" class="btn btn-outline-secondary <?php echo $view == 'list' ? 'active' : ''; ?>">
+                    <i class="fas fa-list"></i>
+                </a>
+                <a href="?view=grid<?php echo !empty($search) ? '&search=' . urlencode($search) : ''; ?>" class="btn btn-outline-secondary <?php echo $view == 'grid' ? 'active' : ''; ?>">
+                    <i class="fas fa-th-large"></i>
+                </a>
+            </div>
+            
+            <?php if($auth->isLibrarian()): ?>
+            <a href="books_manage.php?action=add" class="btn btn-success">
+                <i class="fas fa-plus-circle me-2"></i>Add New Book
+            </a>
+            <?php endif; ?>
+        </div>
     </div>
     
     <!-- Search Form -->
     <div class="card mb-4">
         <div class="card-body">
             <form action="books.php" method="GET" class="search-form">
+                <input type="hidden" name="view" value="<?php echo $view; ?>">
                 <div class="input-group">
                     <input type="text" class="form-control" name="search" placeholder="Search by title or author" value="<?php echo htmlspecialchars($search); ?>">
                     <button class="btn btn-primary" type="submit">
                         <i class="fas fa-search me-2"></i>Search
                     </button>
                     <?php if(!empty($search)): ?>
-                    <a href="books.php" class="btn btn-outline-secondary">
+                    <a href="books.php?view=<?php echo $view; ?>" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-2"></i>Clear
                     </a>
                     <?php endif; ?>
@@ -62,7 +75,103 @@ $total_pages = ceil($total_rows / $records_per_page);
     
     <?php if($stmt->rowCount() > 0): ?>
     
-    <!-- Books Table -->
+    <?php if($view == 'grid'): ?>
+    <!-- Grid View for Books -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <?php if(!empty($search)): ?>
+            <h5 class="mb-0">Search Results for: "<?php echo htmlspecialchars($search); ?>" (<?php echo $total_rows; ?> results found)</h5>
+            <?php else: ?>
+            <h5 class="mb-0">All Books (<?php echo $total_rows; ?> total)</h5>
+            <?php endif; ?>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <?php while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <div class="text-center pt-3">
+                            <?php if (!empty($row['cover_image'])): ?>
+                            <img src="<?php echo htmlspecialchars($row['cover_image']); ?>" alt="Book Cover" class="img-thumbnail" style="height: 150px;">
+                            <?php else: ?>
+                            <div class="bg-light border rounded mx-auto" style="height: 150px; width: 100px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-book fa-3x text-secondary"></i>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="book_detail.php?id=<?php echo $row['id']; ?>" class="text-decoration-none">
+                                    <?php echo htmlspecialchars($row['title']); ?>
+                                </a>
+                            </h5>
+                            <p class="card-text">by <?php echo htmlspecialchars($row['author']); ?></p>
+                            <p class="card-text">
+                                <small class="text-muted"><?php echo htmlspecialchars($row['category']); ?> (<?php echo htmlspecialchars($row['publication_year']); ?>)</small>
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <?php if($row['available_copies'] > 0): ?>
+                                <span class="badge bg-success"><?php echo $row['available_copies']; ?> Available</span>
+                                <?php else: ?>
+                                <span class="badge bg-danger">Not Available</span>
+                                <?php endif; ?>
+                                
+                                <div>
+                                    <?php if($auth->isLoggedIn() && $row['available_copies'] > 0): ?>
+                                    <a href="loans.php?action=checkout&book_id=<?php echo $row['id']; ?>" class="btn btn-sm btn-success">
+                                        <i class="fas fa-book-reader"></i>
+                                    </a>
+                                    <?php endif; ?>
+                                    <a href="book_detail.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endwhile; ?>
+            </div>
+            
+            <!-- Pagination -->
+            <?php if($total_pages > 1 && empty($search)): ?>
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <?php if($page > 1): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="books.php?view=<?php echo $view; ?>&page=1">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="books.php?view=<?php echo $view; ?>&page=<?php echo $page-1; ?>">Previous</a>
+                    </li>
+                    <?php endif; ?>
+                    
+                    <?php 
+                    $start_page = max(1, $page - 2);
+                    $end_page = min($total_pages, $page + 2);
+                    
+                    for($i = $start_page; $i <= $end_page; $i++): 
+                    ?>
+                    <li class="page-item <?php if($i == $page) echo 'active'; ?>">
+                        <a class="page-link" href="books.php?view=<?php echo $view; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    </li>
+                    <?php endfor; ?>
+                    
+                    <?php if($page < $total_pages): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="books.php?view=<?php echo $view; ?>&page=<?php echo $page+1; ?>">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="books.php?view=<?php echo $view; ?>&page=<?php echo $total_pages; ?>">Last</a>
+                    </li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php else: ?>
+    <!-- List View for Books (Original Table) -->
     <div class="card">
         <div class="card-header bg-primary text-white">
             <?php if(!empty($search)): ?>
@@ -76,6 +185,7 @@ $total_pages = ceil($total_rows / $records_per_page);
                 <table class="table table-hover">
                     <thead>
                         <tr>
+                            <th>Cover</th>
                             <th>Title</th>
                             <th>Author</th>
                             <th>Category</th>
@@ -87,7 +197,23 @@ $total_pages = ceil($total_rows / $records_per_page);
                     <tbody>
                         <?php while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($row['title']); ?></td>
+                            <td>
+                                <?php if (!empty($row['cover_image'])): ?>
+                                <img src="<?php echo htmlspecialchars($row['cover_image']); ?>" alt="Book Cover" class="img-thumbnail" style="height: 50px;">
+                                <?php else: ?>
+                                <div class="bg-light border rounded" style="height: 50px; width: 35px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-book text-secondary"></i>
+                                </div>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <a href="book_detail.php?id=<?php echo $row['id']; ?>" class="text-decoration-none">
+                                    <?php echo htmlspecialchars($row['title']); ?>
+                                </a>
+                                <?php if (!empty($row['description'])): ?>
+                                <br><small class="text-muted"><?php echo substr(htmlspecialchars($row['description']), 0, 50) . '...'; ?></small>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo htmlspecialchars($row['author']); ?></td>
                             <td><?php echo htmlspecialchars($row['category']); ?></td>
                             <td><?php echo htmlspecialchars($row['publication_year']); ?></td>
@@ -128,10 +254,10 @@ $total_pages = ceil($total_rows / $records_per_page);
                 <ul class="pagination justify-content-center">
                     <?php if($page > 1): ?>
                     <li class="page-item">
-                        <a class="page-link" href="books.php?page=1">First</a>
+                        <a class="page-link" href="books.php?view=<?php echo $view; ?>&page=1">First</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="books.php?page=<?php echo $page-1; ?>">Previous</a>
+                        <a class="page-link" href="books.php?view=<?php echo $view; ?>&page=<?php echo $page-1; ?>">Previous</a>
                     </li>
                     <?php endif; ?>
                     
@@ -142,16 +268,16 @@ $total_pages = ceil($total_rows / $records_per_page);
                     for($i = $start_page; $i <= $end_page; $i++): 
                     ?>
                     <li class="page-item <?php if($i == $page) echo 'active'; ?>">
-                        <a class="page-link" href="books.php?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                        <a class="page-link" href="books.php?view=<?php echo $view; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
                     </li>
                     <?php endfor; ?>
                     
                     <?php if($page < $total_pages): ?>
                     <li class="page-item">
-                        <a class="page-link" href="books.php?page=<?php echo $page+1; ?>">Next</a>
+                        <a class="page-link" href="books.php?view=<?php echo $view; ?>&page=<?php echo $page+1; ?>">Next</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="books.php?page=<?php echo $total_pages; ?>">Last</a>
+                        <a class="page-link" href="books.php?view=<?php echo $view; ?>&page=<?php echo $total_pages; ?>">Last</a>
                     </li>
                     <?php endif; ?>
                 </ul>
@@ -160,6 +286,7 @@ $total_pages = ceil($total_rows / $records_per_page);
             
         </div>
     </div>
+    <?php endif; ?>
     
     <?php else: ?>
     <div class="alert alert-info">
