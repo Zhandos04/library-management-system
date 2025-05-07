@@ -1,4 +1,7 @@
 <?php
+// Включаем буферизацию вывода
+ob_start();
+
 // Include header
 include_once 'includes/header.php';
 
@@ -30,7 +33,7 @@ $report_title = '';
 
 switch ($report_type) {
     case 'popular_books':
-        $report_title = 'Most Popular Books';
+        $report_title = 'Популярные книги';
         $query = "SELECT b.id, b.title, b.author, COUNT(l.id) as loan_count 
                  FROM books b
                  JOIN loan_history l ON b.id = l.book_id
@@ -46,7 +49,7 @@ switch ($report_type) {
         break;
     
     case 'active_members':
-        $report_title = 'Most Active Members';
+        $report_title = 'Активные читатели';
         $query = "SELECT m.id, m.first_name, m.last_name, m.email, COUNT(l.id) as loan_count 
                  FROM members m
                  JOIN loan_history l ON m.id = l.member_id
@@ -62,7 +65,7 @@ switch ($report_type) {
         break;
     
     case 'overdue_books':
-        $report_title = 'Overdue Books';
+        $report_title = 'Просроченные книги';
         $query = "SELECT l.id, b.title, b.author, m.first_name, m.last_name, m.email, 
                  l.checkout_date, l.due_date, 
                  DATEDIFF(CURRENT_DATE, l.due_date) as days_overdue
@@ -78,7 +81,7 @@ switch ($report_type) {
         break;
     
     case 'fines_collected':
-        $report_title = 'Fines Collected';
+        $report_title = 'Собранные штрафы';
         $query = "SELECT m.id, m.first_name, m.last_name, m.email, 
                  SUM(l.fine) as total_fine, COUNT(l.id) as overdue_count
                  FROM loan_history l
@@ -94,7 +97,7 @@ switch ($report_type) {
         break;
     
     case 'inventory':
-        $report_title = 'Book Inventory Status';
+        $report_title = 'Инвентаризация книг';
         $query = "SELECT b.id, b.isbn, b.title, b.author, b.category, 
                  b.total_copies, b.available_copies, 
                  (b.total_copies - b.available_copies) as checked_out
@@ -107,7 +110,7 @@ switch ($report_type) {
     
     case 'loan_stats':
     default:
-        $report_title = 'Loan Statistics';
+        $report_title = 'Статистика выдач';
         // Get daily loan counts for the past period
         $query = "SELECT DATE(checkout_date) as loan_date, COUNT(*) as loan_count
                  FROM loan_history
@@ -125,13 +128,13 @@ switch ($report_type) {
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Library Reports</h1>
+        <h1>Отчеты библиотеки</h1>
         <div class="btn-group">
             <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-file-export me-2"></i>Export
+                <i class="fas fa-file-export me-2"></i>Экспорт
             </button>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="javascript:window.print();">Print</a></li>
+                <li><a class="dropdown-item" href="javascript:window.print();">Печать</a></li>
                 <!-- Add export options if needed -->
             </ul>
         </div>
@@ -142,27 +145,27 @@ switch ($report_type) {
             <!-- Report Selection Menu -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Report Types</h5>
+                    <h5 class="mb-0">Типы отчетов</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         <a href="reports.php?type=popular_books" class="list-group-item list-group-item-action <?php if($report_type == 'popular_books') echo 'active'; ?>">
-                            <i class="fas fa-book me-2"></i>Popular Books
+                            <i class="fas fa-book me-2"></i>Популярные книги
                         </a>
                         <a href="reports.php?type=active_members" class="list-group-item list-group-item-action <?php if($report_type == 'active_members') echo 'active'; ?>">
-                            <i class="fas fa-users me-2"></i>Active Members
+                            <i class="fas fa-users me-2"></i>Активные читатели
                         </a>
                         <a href="reports.php?type=overdue_books" class="list-group-item list-group-item-action <?php if($report_type == 'overdue_books') echo 'active'; ?>">
-                            <i class="fas fa-exclamation-circle me-2"></i>Overdue Books
+                            <i class="fas fa-exclamation-circle me-2"></i>Просроченные книги
                         </a>
                         <a href="reports.php?type=fines_collected" class="list-group-item list-group-item-action <?php if($report_type == 'fines_collected') echo 'active'; ?>">
-                            <i class="fas fa-dollar-sign me-2"></i>Fines Collected
+                            <i class="fas fa-dollar-sign me-2"></i>Собранные штрафы
                         </a>
                         <a href="reports.php?type=inventory" class="list-group-item list-group-item-action <?php if($report_type == 'inventory') echo 'active'; ?>">
-                            <i class="fas fa-warehouse me-2"></i>Book Inventory
+                            <i class="fas fa-warehouse me-2"></i>Инвентаризация книг
                         </a>
                         <a href="reports.php?type=loan_stats" class="list-group-item list-group-item-action <?php if($report_type == 'loan_stats') echo 'active'; ?>">
-                            <i class="fas fa-chart-line me-2"></i>Loan Statistics
+                            <i class="fas fa-chart-line me-2"></i>Статистика выдач
                         </a>
                     </div>
                 </div>
@@ -172,27 +175,27 @@ switch ($report_type) {
             <?php if($report_type != 'overdue_books' && $report_type != 'inventory'): ?>
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Time Period</h5>
+                    <h5 class="mb-0">Период времени</h5>
                 </div>
                 <div class="card-body">
                     <form action="reports.php" method="GET">
                         <input type="hidden" name="type" value="<?php echo $report_type; ?>">
                         <div class="mb-3">
-                            <label for="period" class="form-label">Select Period</label>
+                            <label for="period" class="form-label">Выберите период</label>
                             <select class="form-select" id="period" name="period" onchange="this.form.submit()">
-                                <option value="7" <?php if($period == '7') echo 'selected'; ?>>Last 7 Days</option>
-                                <option value="30" <?php if($period == '30') echo 'selected'; ?>>Last 30 Days</option>
-                                <option value="90" <?php if($period == '90') echo 'selected'; ?>>Last 3 Months</option>
-                                <option value="180" <?php if($period == '180') echo 'selected'; ?>>Last 6 Months</option>
-                                <option value="365" <?php if($period == '365') echo 'selected'; ?>>Last Year</option>
+                                <option value="7" <?php if($period == '7') echo 'selected'; ?>>Последние 7 дней</option>
+                                <option value="30" <?php if($period == '30') echo 'selected'; ?>>Последние 30 дней</option>
+                                <option value="90" <?php if($period == '90') echo 'selected'; ?>>Последние 3 месяца</option>
+                                <option value="180" <?php if($period == '180') echo 'selected'; ?>>Последние 6 месяцев</option>
+                                <option value="365" <?php if($period == '365') echo 'selected'; ?>>Последний год</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Date Range</label>
+                            <label class="form-label">Диапазон дат</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" value="<?php echo date('d M Y', strtotime($start_date)); ?>" disabled>
-                                <span class="input-group-text">to</span>
-                                <input type="text" class="form-control" value="<?php echo date('d M Y', strtotime($end_date)); ?>" disabled>
+                                <input type="text" class="form-control" value="<?php echo date('d.m.Y', strtotime($start_date)); ?>" disabled>
+                                <span class="input-group-text">до</span>
+                                <input type="text" class="form-control" value="<?php echo date('d.m.Y', strtotime($end_date)); ?>" disabled>
                             </div>
                         </div>
                     </form>
@@ -214,10 +217,10 @@ switch ($report_type) {
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Rank</th>
-                                            <th>Title</th>
-                                            <th>Author</th>
-                                            <th>Loans</th>
+                                            <th>Ранг</th>
+                                            <th>Название</th>
+                                            <th>Автор</th>
+                                            <th>Выдач</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -237,10 +240,10 @@ switch ($report_type) {
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Rank</th>
-                                            <th>Member</th>
+                                            <th>Ранг</th>
+                                            <th>Читатель</th>
                                             <th>Email</th>
-                                            <th>Books Borrowed</th>
+                                            <th>Книг взято</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -260,10 +263,10 @@ switch ($report_type) {
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Book Title</th>
-                                            <th>Member</th>
-                                            <th>Due Date</th>
-                                            <th>Days Overdue</th>
+                                            <th>Название книги</th>
+                                            <th>Читатель</th>
+                                            <th>Срок возврата</th>
+                                            <th>Дней просрочено</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -271,8 +274,8 @@ switch ($report_type) {
                                         <tr>
                                             <td><?php echo htmlspecialchars($overdue['title']); ?></td>
                                             <td><?php echo htmlspecialchars($overdue['first_name'] . ' ' . $overdue['last_name']); ?></td>
-                                            <td><?php echo date('d M Y', strtotime($overdue['due_date'])); ?></td>
-                                            <td><span class="badge bg-danger"><?php echo $overdue['days_overdue']; ?> days</span></td>
+                                            <td><?php echo date('d.m.Y', strtotime($overdue['due_date'])); ?></td>
+                                            <td><span class="badge bg-danger"><?php echo $overdue['days_overdue']; ?> дн.</span></td>
                                         </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -283,10 +286,10 @@ switch ($report_type) {
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Member</th>
+                                            <th>Читатель</th>
                                             <th>Email</th>
-                                            <th>Overdue Books</th>
-                                            <th>Total Fines</th>
+                                            <th>Просроченные книги</th>
+                                            <th>Сумма штрафов</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -295,7 +298,7 @@ switch ($report_type) {
                                             <td><a href="member_detail.php?id=<?php echo $fine['id']; ?>"><?php echo htmlspecialchars($fine['first_name'] . ' ' . $fine['last_name']); ?></a></td>
                                             <td><?php echo htmlspecialchars($fine['email']); ?></td>
                                             <td><?php echo $fine['overdue_count']; ?></td>
-                                            <td class="text-danger">$<?php echo number_format($fine['total_fine'], 2); ?></td>
+                                            <td class="text-danger"><?php echo number_format($fine['total_fine'], 2); ?> р.</td>
                                         </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -311,8 +314,8 @@ switch ($report_type) {
                             ?>
                             <div class="card mt-3 bg-light">
                                 <div class="card-body">
-                                    <h5 class="card-title">Summary</h5>
-                                    <p class="card-text">Total fines collected in this period: <strong class="text-success">$<?php echo number_format($total_fines, 2); ?></strong></p>
+                                    <h5 class="card-title">Итоги</h5>
+                                    <p class="card-text">Общая сумма штрафов за этот период: <strong class="text-success"><?php echo number_format($total_fines, 2); ?> р.</strong></p>
                                 </div>
                             </div>
                         <?php elseif($report_type == 'inventory'): ?>
@@ -321,12 +324,12 @@ switch ($report_type) {
                                     <thead>
                                         <tr>
                                             <th>ISBN</th>
-                                            <th>Title</th>
-                                            <th>Author</th>
-                                            <th>Category</th>
-                                            <th>Total Copies</th>
-                                            <th>Available</th>
-                                            <th>Checked Out</th>
+                                            <th>Название</th>
+                                            <th>Автор</th>
+                                            <th>Категория</th>
+                                            <th>Всего экз.</th>
+                                            <th>Доступно</th>
+                                            <th>На руках</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -336,7 +339,7 @@ switch ($report_type) {
                                             // Add category header row
                                             if ($book['category'] != $current_category) {
                                                 $current_category = $book['category'];
-                                                echo '<tr class="table-secondary"><th colspan="7">' . ($current_category ? htmlspecialchars($current_category) : 'Uncategorized') . '</th></tr>';
+                                                echo '<tr class="table-secondary"><th colspan="7">' . ($current_category ? htmlspecialchars($current_category) : 'Без категории') . '</th></tr>';
                                             }
                                         ?>
                                         <tr>
@@ -375,24 +378,24 @@ switch ($report_type) {
                             ?>
                             <div class="card mt-3 bg-light">
                                 <div class="card-body">
-                                    <h5 class="card-title">Inventory Summary</h5>
+                                    <h5 class="card-title">Сводка по инвентаризации</h5>
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <p class="card-text">Total Books: <strong><?php echo $total_books; ?></strong></p>
+                                            <p class="card-text">Всего книг: <strong><?php echo $total_books; ?></strong></p>
                                         </div>
                                         <div class="col-md-3">
-                                            <p class="card-text">Total Copies: <strong><?php echo $total_copies; ?></strong></p>
+                                            <p class="card-text">Всего экземпляров: <strong><?php echo $total_copies; ?></strong></p>
                                         </div>
                                         <div class="col-md-3">
-                                            <p class="card-text">Available: <strong><?php echo $available_copies; ?></strong></p>
+                                            <p class="card-text">Доступно: <strong><?php echo $available_copies; ?></strong></p>
                                         </div>
                                         <div class="col-md-3">
-                                            <p class="card-text">Checked Out: <strong><?php echo $checked_out_copies; ?></strong></p>
+                                            <p class="card-text">На руках: <strong><?php echo $checked_out_copies; ?></strong></p>
                                         </div>
                                     </div>
                                     <div class="progress">
                                         <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $availability_rate; ?>%" aria-valuenow="<?php echo $availability_rate; ?>" aria-valuemin="0" aria-valuemax="100">
-                                            <?php echo round($availability_rate); ?>% Available
+                                            <?php echo round($availability_rate); ?>% доступно
                                         </div>
                                     </div>
                                 </div>
@@ -405,8 +408,8 @@ switch ($report_type) {
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Date</th>
-                                            <th>Books Loaned</th>
+                                            <th>Дата</th>
+                                            <th>Выдано книг</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -416,7 +419,7 @@ switch ($report_type) {
                                             $total_loans += $stat['loan_count'];
                                         ?>
                                         <tr>
-                                            <td><?php echo date('d M Y', strtotime($stat['loan_date'])); ?></td>
+                                            <td><?php echo date('d.m.Y', strtotime($stat['loan_date'])); ?></td>
                                             <td><span class="badge bg-primary"><?php echo $stat['loan_count']; ?></span></td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -426,9 +429,9 @@ switch ($report_type) {
                             
                             <div class="card mt-3 bg-light">
                                 <div class="card-body">
-                                    <h5 class="card-title">Summary</h5>
-                                    <p class="card-text">Total loans in this period: <strong><?php echo $total_loans; ?></strong></p>
-                                    <p class="card-text">Average loans per day: <strong><?php echo round($total_loans / count($report_data), 2); ?></strong></p>
+                                    <h5 class="card-title">Итоги</h5>
+                                    <p class="card-text">Всего выдач за период: <strong><?php echo $total_loans; ?></strong></p>
+                                    <p class="card-text">Среднее количество выдач в день: <strong><?php echo round($total_loans / count($report_data), 2); ?></strong></p>
                                 </div>
                             </div>
                             
@@ -438,7 +441,7 @@ switch ($report_type) {
                                 document.addEventListener('DOMContentLoaded', function() {
                                     var options = {
                                         series: [{
-                                            name: 'Books Loaned',
+                                            name: 'Выдано книг',
                                             data: [
                                                 <?php 
                                                 foreach($report_data as $stat) {
@@ -470,7 +473,7 @@ switch ($report_type) {
                                             categories: [
                                                 <?php 
                                                 foreach($report_data as $stat) {
-                                                    echo "'" . date('d M', strtotime($stat['loan_date'])) . "', ";
+                                                    echo "'" . date('d.m', strtotime($stat['loan_date'])) . "', ";
                                                 }
                                                 ?>
                                             ],
@@ -485,11 +488,11 @@ switch ($report_type) {
                         <?php endif; ?>
                     <?php else: ?>
                         <div class="alert alert-info">
-                            <h4 class="alert-heading">No data available!</h4>
-                            <p>There is no data available for this report in the selected time period.</p>
+                            <h4 class="alert-heading">Нет доступных данных!</h4>
+                            <p>Для данного отчета в выбранный период времени нет данных.</p>
                             <?php if($report_type != 'overdue_books' && $report_type != 'inventory'): ?>
                             <hr>
-                            <p class="mb-0">Try selecting a different time period.</p>
+                            <p class="mb-0">Попробуйте выбрать другой период времени.</p>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
@@ -502,4 +505,7 @@ switch ($report_type) {
 <?php
 // Include footer
 include_once 'includes/footer.php';
+
+// Выводим буфер и завершаем скрипт
+ob_end_flush();
 ?>

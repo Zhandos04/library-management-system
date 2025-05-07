@@ -47,12 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
     
     // Simple validation
     if (empty($member->first_name) || empty($member->last_name) || empty($member->email)) {
-        $error = "First name, last name and email are required.";
+        $error = "Имя, фамилия и email обязательны для заполнения.";
     } else {
         if ($member->update()) {
-            $success = "Profile updated successfully.";
+            $success = "Профиль успешно обновлен.";
         } else {
-            $error = "Unable to update profile. Please try again.";
+            $error = "Не удалось обновить профиль. Пожалуйста, попробуйте еще раз.";
         }
     }
 }
@@ -65,11 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
     
     // Validate password change
     if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
-        $error = "All password fields are required.";
+        $error = "Все поля пароля обязательны для заполнения.";
     } elseif ($new_password != $confirm_password) {
-        $error = "New passwords do not match.";
+        $error = "Новые пароли не совпадают.";
     } elseif (strlen($new_password) < 6) {
-        $error = "New password must be at least 6 characters long.";
+        $error = "Новый пароль должен содержать не менее 6 символов.";
     } else {
         // Verify current password
         $username = $_SESSION['username'];
@@ -91,12 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
             $update_stmt->bindParam(2, $user_id);
             
             if ($update_stmt->execute()) {
-                $success = "Password changed successfully.";
+                $success = "Пароль успешно изменен.";
             } else {
-                $error = "Unable to change password. Please try again.";
+                $error = "Не удалось изменить пароль. Пожалуйста, попробуйте еще раз.";
             }
         } else {
-            $error = "Current password is incorrect.";
+            $error = "Текущий пароль указан неверно.";
         }
     }
 }
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>My Profile</h1>
+        <h1>Мой профиль</h1>
     </div>
     
     <?php if (!empty($error)): ?>
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
             <!-- Profile Information -->
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Account Information</h5>
+                    <h5 class="mb-0">Информация об аккаунте</h5>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
@@ -128,13 +128,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                             <i class="fas fa-user-circle fa-4x text-primary"></i>
                         </div>
                         <h4><?php echo $_SESSION['username']; ?></h4>
-                        <span class="badge bg-info"><?php echo ucfirst($_SESSION['role']); ?></span>
+                        <span class="badge bg-info">
+                            <?php
+                            $role_text = '';
+                            switch($_SESSION['role']) {
+                                case 'admin':
+                                    $role_text = 'Администратор';
+                                    break;
+                                case 'librarian':
+                                    $role_text = 'Библиотекарь';
+                                    break;
+                                case 'user':
+                                    $role_text = 'Пользователь';
+                                    break;
+                                default:
+                                    $role_text = ucfirst($_SESSION['role']);
+                            }
+                            echo $role_text;
+                            ?>
+                        </span>
                     </div>
                     
                     <?php if ($has_member_profile): ?>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-user me-2"></i> Name</span>
+                            <span><i class="fas fa-user me-2"></i> ФИО</span>
                             <span><?php echo htmlspecialchars($member->first_name . ' ' . $member->last_name); ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -142,30 +160,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                             <span><?php echo htmlspecialchars($member->email); ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-phone me-2"></i> Phone</span>
+                            <span><i class="fas fa-phone me-2"></i> Телефон</span>
                             <span><?php echo htmlspecialchars($member->phone); ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-calendar-alt me-2"></i> Member Since</span>
-                            <span><?php echo date('d M Y', strtotime($member->membership_date)); ?></span>
+                            <span><i class="fas fa-calendar-alt me-2"></i> Дата регистрации</span>
+                            <span><?php echo date('d.m.Y', strtotime($member->membership_date)); ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-flag me-2"></i> Status</span>
-                            <span class="badge bg-success"><?php echo ucfirst($member->membership_status); ?></span>
+                            <span><i class="fas fa-flag me-2"></i> Статус</span>
+                            <span class="badge bg-success">
+                                <?php
+                                $status_text = '';
+                                switch($member->membership_status) {
+                                    case 'active':
+                                        $status_text = 'Активен';
+                                        break;
+                                    case 'expired':
+                                        $status_text = 'Истёк';
+                                        break;
+                                    case 'suspended':
+                                        $status_text = 'Приостановлен';
+                                        break;
+                                    default:
+                                        $status_text = ucfirst($member->membership_status);
+                                }
+                                echo $status_text;
+                                ?>
+                            </span>
                         </li>
                     </ul>
                     <?php else: ?>
                     <div class="alert alert-warning">
-                        <p>You don't have a member profile associated with your account. Please contact a librarian to set up your membership.</p>
+                        <p>У вас нет профиля читателя, связанного с вашей учетной записью. Пожалуйста, обратитесь к библиотекарю, чтобы настроить членство.</p>
                     </div>
                     <?php endif; ?>
                     
                     <div class="d-grid gap-2 mt-3">
                         <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#editProfileForm">
-                            <i class="fas fa-edit me-2"></i>Edit Profile
+                            <i class="fas fa-edit me-2"></i>Редактировать профиль
                         </button>
                         <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#changePasswordForm">
-                            <i class="fas fa-key me-2"></i>Change Password
+                            <i class="fas fa-key me-2"></i>Изменить пароль
                         </button>
                     </div>
                 </div>
@@ -175,16 +211,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
             <div class="collapse mt-4" id="editProfileForm">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Edit Profile</h5>
+                        <h5 class="mb-0">Редактирование профиля</h5>
                     </div>
                     <div class="card-body">
                         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                             <div class="mb-3">
-                                <label for="first_name" class="form-label">First Name*</label>
+                                <label for="first_name" class="form-label">Имя*</label>
                                 <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo htmlspecialchars($member->first_name); ?>" required>
                             </div>
                             <div class="mb-3">
-                                <label for="last_name" class="form-label">Last Name*</label>
+                                <label for="last_name" class="form-label">Фамилия*</label>
                                 <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo htmlspecialchars($member->last_name); ?>" required>
                             </div>
                             <div class="mb-3">
@@ -192,15 +228,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                                 <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($member->email); ?>" required>
                             </div>
                             <div class="mb-3">
-                                <label for="phone" class="form-label">Phone</label>
+                                <label for="phone" class="form-label">Телефон</label>
                                 <input type="text" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($member->phone); ?>">
                             </div>
                             <div class="mb-3">
-                                <label for="address" class="form-label">Address</label>
+                                <label for="address" class="form-label">Адрес</label>
                                 <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($member->address); ?></textarea>
                             </div>
                             <div class="d-grid">
-                                <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
+                                <button type="submit" name="update_profile" class="btn btn-primary">Обновить профиль</button>
                             </div>
                         </form>
                     </div>
@@ -211,25 +247,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
             <div class="collapse mt-4" id="changePasswordForm">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Change Password</h5>
+                        <h5 class="mb-0">Изменение пароля</h5>
                     </div>
                     <div class="card-body">
                         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                             <div class="mb-3">
-                                <label for="current_password" class="form-label">Current Password*</label>
+                                <label for="current_password" class="form-label">Текущий пароль*</label>
                                 <input type="password" class="form-control" id="current_password" name="current_password" required>
                             </div>
                             <div class="mb-3">
-                                <label for="new_password" class="form-label">New Password*</label>
+                                <label for="new_password" class="form-label">Новый пароль*</label>
                                 <input type="password" class="form-control" id="new_password" name="new_password" required>
-                                <small class="text-muted">Minimum 6 characters</small>
+                                <small class="text-muted">Минимум 6 символов</small>
                             </div>
                             <div class="mb-3">
-                                <label for="confirm_password" class="form-label">Confirm New Password*</label>
+                                <label for="confirm_password" class="form-label">Подтверждение нового пароля*</label>
                                 <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                             </div>
                             <div class="d-grid">
-                                <button type="submit" name="change_password" class="btn btn-primary">Change Password</button>
+                                <button type="submit" name="change_password" class="btn btn-primary">Изменить пароль</button>
                             </div>
                         </form>
                     </div>
@@ -242,7 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
             <!-- Active Loans -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">My Active Loans (<?php echo count($active_loans); ?>)</h5>
+                    <h5 class="mb-0">Мои активные выдачи (<?php echo count($active_loans); ?>)</h5>
                 </div>
                 <div class="card-body">
                     <?php if (count($active_loans) > 0): ?>
@@ -250,10 +286,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Book Title</th>
-                                    <th>Checkout Date</th>
-                                    <th>Due Date</th>
-                                    <th>Status</th>
+                                    <th>Название книги</th>
+                                    <th>Дата выдачи</th>
+                                    <th>Срок возврата</th>
+                                    <th>Статус</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -262,8 +298,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                                     <td>
                                         <a href="book_detail.php?id=<?php echo $loan['book_id']; ?>"><?php echo htmlspecialchars($loan['book_title']); ?></a>
                                     </td>
-                                    <td><?php echo date('d M Y', strtotime($loan['checkout_date'])); ?></td>
-                                    <td><?php echo date('d M Y', strtotime($loan['due_date'])); ?></td>
+                                    <td><?php echo date('d.m.Y', strtotime($loan['checkout_date'])); ?></td>
+                                    <td><?php echo date('d.m.Y', strtotime($loan['due_date'])); ?></td>
                                     <td>
                                         <?php
                                         $today = new DateTime();
@@ -271,11 +307,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                                         $days_left = $today->diff($due_date)->format("%r%a");
                                         
                                         if ($days_left < 0) {
-                                            echo '<span class="badge bg-danger">Overdue by ' . abs($days_left) . ' days</span>';
+                                            echo '<span class="badge bg-danger">Просрочено</span>';
                                         } elseif ($days_left <= 3) {
-                                            echo '<span class="badge bg-warning text-dark">' . $days_left . ' days left</span>';
+                                            echo '<span class="badge bg-warning text-dark">Осталось ' . $days_left . ' дн.</span>';
                                         } else {
-                                            echo '<span class="badge bg-success">' . $days_left . ' days left</span>';
+                                            echo '<span class="badge bg-success">Осталось ' . $days_left . ' дн.</span>';
                                         }
                                         ?>
                                     </td>
@@ -285,8 +321,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                         </table>
                     </div>
                     <?php else: ?>
-                    <p class="text-muted">You don't have any active loans.</p>
-                    <a href="books.php" class="btn btn-outline-primary">Browse Books</a>
+                    <p class="text-muted">У вас нет активных выдач.</p>
+                    <a href="books.php" class="btn btn-outline-primary">Просмотреть каталог книг</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -294,7 +330,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
             <!-- Loan History -->
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">My Loan History</h5>
+                    <h5 class="mb-0">История моих выдач</h5>
                 </div>
                 <div class="card-body">
                     <?php if (count($loan_history) > 0): ?>
@@ -302,11 +338,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Book Title</th>
-                                    <th>Checkout Date</th>
-                                    <th>Return Date</th>
-                                    <th>Status</th>
-                                    <th>Fine</th>
+                                    <th>Название книги</th>
+                                    <th>Дата выдачи</th>
+                                    <th>Дата возврата</th>
+                                    <th>Статус</th>
+                                    <th>Штраф</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -316,12 +352,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                                     <td>
                                         <a href="book_detail.php?id=<?php echo $loan['book_id']; ?>"><?php echo htmlspecialchars($loan['book_title']); ?></a>
                                     </td>
-                                    <td><?php echo date('d M Y', strtotime($loan['checkout_date'])); ?></td>
-                                    <td><?php echo date('d M Y', strtotime($loan['return_date'])); ?></td>
-                                    <td><span class="badge bg-success">Returned</span></td>
+                                    <td><?php echo date('d.m.Y', strtotime($loan['checkout_date'])); ?></td>
+                                    <td><?php echo date('d.m.Y', strtotime($loan['return_date'])); ?></td>
+                                    <td><span class="badge bg-success">Возвращена</span></td>
                                     <td>
                                         <?php if ($loan['fine'] > 0): ?>
-                                        <span class="text-danger">$<?php echo number_format($loan['fine'], 2); ?></span>
+                                        <span class="text-danger"><?php echo number_format($loan['fine'], 2); ?> р.</span>
                                         <?php else: ?>
                                         -
                                         <?php endif; ?>
@@ -333,16 +369,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                         </table>
                     </div>
                     <?php else: ?>
-                    <p class="text-muted">You don't have any loan history yet.</p>
+                    <p class="text-muted">У вас еще нет истории выдач.</p>
                     <?php endif; ?>
                 </div>
             </div>
             <?php else: ?>
             <div class="alert alert-info">
-                <h4 class="alert-heading">Welcome to the Library Management System!</h4>
-                <p>To borrow books and access member features, you need to have a member profile.</p>
+                <h4 class="alert-heading">Добро пожаловать в систему управления библиотекой!</h4>
+                <p>Чтобы брать книги и получить доступ к функциям читателя, вам необходимо иметь профиль читателя.</p>
                 <hr>
-                <p>Please visit the library in person or contact a librarian to create your membership profile.</p>
+                <p>Пожалуйста, посетите библиотеку лично или обратитесь к библиотекарю для создания вашего профиля читателя.</p>
             </div>
             <?php endif; ?>
         </div>

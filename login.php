@@ -18,13 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = trim($_POST['password']);
     
     if (empty($username) || empty($password)) {
-        $error = "Please enter both username and password.";
+        $error = "Пожалуйста, введите имя пользователя и пароль.";
     } else {
         if ($auth->login($username, $password)) {
             header("Location: index.php");
             exit();
         } else {
-            $error = "Invalid username or password.";
+            $error = "Неверное имя пользователя или пароль.";
         }
     }
 }
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Login</h4>
+                    <h4 class="mb-0">Вход в систему</h4>
                 </div>
                 <div class="card-body">
                     <?php if (!empty($error)): ?>
@@ -44,20 +44,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
+                            <label for="username" class="form-label">Имя пользователя</label>
                             <input type="text" class="form-control" id="username" name="username" value="<?php echo $username; ?>" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label">Пароль</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Login</button>
+                            <button type="submit" class="btn btn-primary">Войти</button>
                         </div>
                     </form>
                 </div>
                 <div class="card-footer text-center">
-                    <p class="mb-0">Don't have an account? <a href="register.php">Register</a></p>
+                    <p class="mb-0">Нет учётной записи? <a href="register.php">Зарегистрироваться</a></p>
                 </div>
             </div>
         </div>

@@ -40,9 +40,9 @@ $total_pages = ceil($total_rows / $records_per_page);
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Library Members</h1>
+        <h1>Читатели библиотеки</h1>
         <a href="members.php?action=add" class="btn btn-success">
-            <i class="fas fa-plus-circle me-2"></i>Add New Member
+            <i class="fas fa-plus-circle me-2"></i>Добавить читателя
         </a>
     </div>
     
@@ -51,13 +51,13 @@ $total_pages = ceil($total_rows / $records_per_page);
         <div class="card-body">
             <form action="members.php" method="GET" class="search-form">
                 <div class="input-group">
-                    <input type="text" class="form-control" name="search" placeholder="Search by name or email" value="<?php echo htmlspecialchars($search); ?>">
+                    <input type="text" class="form-control" name="search" placeholder="Поиск по имени или email" value="<?php echo htmlspecialchars($search); ?>">
                     <button class="btn btn-primary" type="submit">
-                        <i class="fas fa-search me-2"></i>Search
+                        <i class="fas fa-search me-2"></i>Поиск
                     </button>
                     <?php if(!empty($search)): ?>
                     <a href="members.php" class="btn btn-outline-secondary">
-                        <i class="fas fa-times me-2"></i>Clear
+                        <i class="fas fa-times me-2"></i>Очистить
                     </a>
                     <?php endif; ?>
                 </div>
@@ -71,9 +71,9 @@ $total_pages = ceil($total_rows / $records_per_page);
     <div class="card">
         <div class="card-header bg-primary text-white">
             <?php if(!empty($search)): ?>
-            <h5 class="mb-0">Search Results for: "<?php echo htmlspecialchars($search); ?>" (<?php echo $total_rows; ?> results found)</h5>
+            <h5 class="mb-0">Результаты поиска: "<?php echo htmlspecialchars($search); ?>" (найдено <?php echo $total_rows; ?> результатов)</h5>
             <?php else: ?>
-            <h5 class="mb-0">All Members (<?php echo $total_rows; ?> total)</h5>
+            <h5 class="mb-0">Все читатели (всего <?php echo $total_rows; ?>)</h5>
             <?php endif; ?>
         </div>
         <div class="card-body">
@@ -82,12 +82,12 @@ $total_pages = ceil($total_rows / $records_per_page);
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
+                            <th>ФИО</th>
                             <th>Email</th>
-                            <th>Phone</th>
-                            <th>Member Since</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>Телефон</th>
+                            <th>Дата регистрации</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -97,24 +97,30 @@ $total_pages = ceil($total_rows / $records_per_page);
                             <td><?php echo htmlspecialchars($row['first_name']) . ' ' . htmlspecialchars($row['last_name']); ?></td>
                             <td><?php echo htmlspecialchars($row['email']); ?></td>
                             <td><?php echo htmlspecialchars($row['phone']); ?></td>
-                            <td><?php echo date('d M Y', strtotime($row['membership_date'])); ?></td>
+                            <td><?php echo date('d.m.Y', strtotime($row['membership_date'])); ?></td>
                             <td>
                                 <?php
                                 $status_class = '';
                                 switch($row['membership_status']) {
                                     case 'active':
                                         $status_class = 'bg-success';
+                                        $status_text = 'Активен';
                                         break;
                                     case 'expired':
                                         $status_class = 'bg-danger';
+                                        $status_text = 'Истёк';
                                         break;
                                     case 'suspended':
                                         $status_class = 'bg-warning text-dark';
+                                        $status_text = 'Приостановлен';
                                         break;
+                                    default:
+                                        $status_class = 'bg-secondary';
+                                        $status_text = ucfirst($row['membership_status']);
                                 }
                                 ?>
                                 <span class="badge <?php echo $status_class; ?>">
-                                    <?php echo ucfirst($row['membership_status']); ?>
+                                    <?php echo $status_text; ?>
                                 </span>
                             </td>
                             <td>
@@ -140,10 +146,10 @@ $total_pages = ceil($total_rows / $records_per_page);
                 <ul class="pagination justify-content-center">
                     <?php if($page > 1): ?>
                     <li class="page-item">
-                        <a class="page-link" href="members.php?page=1">First</a>
+                        <a class="page-link" href="members.php?page=1">Первая</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="members.php?page=<?php echo $page-1; ?>">Previous</a>
+                        <a class="page-link" href="members.php?page=<?php echo $page-1; ?>">Предыдущая</a>
                     </li>
                     <?php endif; ?>
                     
@@ -160,10 +166,10 @@ $total_pages = ceil($total_rows / $records_per_page);
                     
                     <?php if($page < $total_pages): ?>
                     <li class="page-item">
-                        <a class="page-link" href="members.php?page=<?php echo $page+1; ?>">Next</a>
+                        <a class="page-link" href="members.php?page=<?php echo $page+1; ?>">Следующая</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="members.php?page=<?php echo $total_pages; ?>">Last</a>
+                        <a class="page-link" href="members.php?page=<?php echo $total_pages; ?>">Последняя</a>
                     </li>
                     <?php endif; ?>
                 </ul>
@@ -176,15 +182,15 @@ $total_pages = ceil($total_rows / $records_per_page);
     <?php else: ?>
     <div class="alert alert-info">
         <?php if(!empty($search)): ?>
-        <h4 class="alert-heading">No results found!</h4>
-        <p>Your search for "<?php echo htmlspecialchars($search); ?>" did not match any members in our database.</p>
+        <h4 class="alert-heading">Результатов не найдено!</h4>
+        <p>Ваш поиск "<?php echo htmlspecialchars($search); ?>" не дал результатов в нашей базе данных.</p>
         <hr>
-        <p class="mb-0">Try different keywords or <a href="members.php" class="alert-link">view all members</a>.</p>
+        <p class="mb-0">Попробуйте другие ключевые слова или <a href="members.php" class="alert-link">просмотрите всех читателей</a>.</p>
         <?php else: ?>
-        <h4 class="alert-heading">No members available!</h4>
-        <p>There are currently no members in the database.</p>
+        <h4 class="alert-heading">Нет читателей!</h4>
+        <p>В базе данных пока нет ни одного читателя.</p>
         <hr>
-        <p class="mb-0">Start by <a href="members.php?action=add" class="alert-link">adding a new member</a>.</p>
+        <p class="mb-0">Начните с <a href="members.php?action=add" class="alert-link">добавления нового читателя</a>.</p>
         <?php endif; ?>
     </div>
     <?php endif; ?>

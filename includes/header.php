@@ -7,11 +7,11 @@ $database = new Database();
 $db = $database->getConnection();
 $auth = new Auth($db);
 ?><!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Management System</title>
+    <title>Система управления библиотекой</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -55,7 +55,7 @@ $auth = new Auth($db);
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.php">
-                <i class="fas fa-book-reader me-2"></i>Library Management System
+                <i class="fas fa-book-reader me-2"></i>Система управления библиотекой
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -63,17 +63,17 @@ $auth = new Auth($db);
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php">Home</a>
+                        <a class="nav-link" href="index.php">Главная</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="books.php">Books</a>
+                        <a class="nav-link" href="books.php">Книги</a>
                     </li>
                     <?php if ($auth->isLibrarian()): ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="members.php">Members</a>
+                        <a class="nav-link" href="members.php">Читатели</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="loans.php">Loans</a>
+                        <a class="nav-link" href="loans.php">Выдачи</a>
                     </li>
                     <?php endif; ?>
                 </ul>
@@ -84,20 +84,20 @@ $auth = new Auth($db);
                             <i class="fas fa-user me-2"></i><?php echo $_SESSION['username']; ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+                            <li><a class="dropdown-item" href="profile.php">Профиль</a></li>
                             <?php if ($auth->isAdmin()): ?>
-                            <li><a class="dropdown-item" href="admin.php">Admin Panel</a></li>
+                            <li><a class="dropdown-item" href="admin.php">Панель администратора</a></li>
                             <?php endif; ?>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                            <li><a class="dropdown-item" href="logout.php">Выйти</a></li>
                         </ul>
                     </li>
                     <?php else: ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.php">Login</a>
+                        <a class="nav-link" href="login.php">Войти</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="register.php">Register</a>
+                        <a class="nav-link" href="register.php">Регистрация</a>
                     </li>
                     <?php endif; ?>
                 </ul>
@@ -114,51 +114,51 @@ $auth = new Auth($db);
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="index.php">
-                                <i class="fas fa-home me-2"></i>Dashboard
+                                <i class="fas fa-home me-2"></i>Главная
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="books.php">
-                                <i class="fas fa-book me-2"></i>Browse Books
+                                <i class="fas fa-book me-2"></i>Просмотр книг
                             </a>
                         </li>
                         <?php if ($auth->isLibrarian()): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="books_manage.php">
-                                <i class="fas fa-edit me-2"></i>Manage Books
+                                <i class="fas fa-edit me-2"></i>Управление книгами
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="members.php">
-                                <i class="fas fa-users me-2"></i>Members
+                                <i class="fas fa-users me-2"></i>Читатели
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="loans.php">
-                                <i class="fas fa-exchange-alt me-2"></i>Loans
+                                <i class="fas fa-exchange-alt me-2"></i>Выдачи
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="reports.php">
-                                <i class="fas fa-chart-bar me-2"></i>Reports
+                                <i class="fas fa-chart-bar me-2"></i>Отчеты
                             </a>
                         </li>
                         <?php endif; ?>
                         <?php if ($auth->isAdmin()): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="admin.php">
-                                <i class="fas fa-cog me-2"></i>System Settings
+                                <i class="fas fa-cog me-2"></i>Настройки системы
                             </a>
                         </li>
                         <?php endif; ?>
                         <li class="nav-item">
                             <a class="nav-link" href="profile.php">
-                                <i class="fas fa-user-circle me-2"></i>My Profile
+                                <i class="fas fa-user-circle me-2"></i>Мой профиль
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="logout.php">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                <i class="fas fa-sign-out-alt me-2"></i>Выйти
                             </a>
                         </li>
                     </ul>

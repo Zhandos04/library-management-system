@@ -31,11 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validate inputs
     if (empty($username) || empty($password) || empty($confirm_password) || 
         empty($first_name) || empty($last_name) || empty($email)) {
-        $error = "Please fill all required fields.";
+        $error = "Пожалуйста, заполните все обязательные поля.";
     } elseif ($password != $confirm_password) {
-        $error = "Passwords do not match.";
+        $error = "Пароли не совпадают.";
     } elseif (strlen($password) < 6) {
-        $error = "Password must be at least 6 characters long.";
+        $error = "Пароль должен содержать не менее 6 символов.";
     } else {
         // Register the user
         if ($auth->register($username, $password, 'user')) {
@@ -60,11 +60,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $member->user_id = $user_id;
             
             if ($member->create()) {
-                $success = "Registration successful! You can now login.";
+                $success = "Регистрация успешно завершена! Теперь вы можете войти в систему.";
                 // Clear form fields
                 $username = $first_name = $last_name = $email = $phone = $address = '';
             } else {
-                $error = "Error creating member profile.";
+                $error = "Ошибка при создании профиля читателя.";
                 
                 // Roll back user creation
                 $query = "DELETE FROM users WHERE id = ?";
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt->execute();
             }
         } else {
-            $error = "Username already exists or error registering user.";
+            $error = "Имя пользователя уже существует или произошла ошибка при регистрации.";
         }
     }
 }
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Register</h4>
+                    <h4 class="mb-0">Регистрация</h4>
                 </div>
                 <div class="card-body">
                     <?php if (!empty($error)): ?>
@@ -94,14 +94,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <?php if (!empty($success)): ?>
                     <div class="alert alert-success">
                         <?php echo $success; ?>
-                        <a href="login.php" class="alert-link">Click here to login</a>
+                        <a href="login.php" class="alert-link">Нажмите здесь, чтобы войти</a>
                     </div>
                     <?php else: ?>
                     
                     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="username" class="form-label">Username*</label>
+                                <label for="username" class="form-label">Имя пользователя*</label>
                                 <input type="text" class="form-control" id="username" name="username" value="<?php echo $username; ?>" required>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -112,46 +112,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="password" class="form-label">Password*</label>
+                                <label for="password" class="form-label">Пароль*</label>
                                 <input type="password" class="form-control" id="password" name="password" required>
-                                <small class="text-muted">Minimum 6 characters</small>
+                                <small class="text-muted">Минимум 6 символов</small>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="confirm_password" class="form-label">Confirm Password*</label>
+                                <label for="confirm_password" class="form-label">Подтверждение пароля*</label>
                                 <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                             </div>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="first_name" class="form-label">First Name*</label>
+                                <label for="first_name" class="form-label">Имя*</label>
                                 <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo $first_name; ?>" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="last_name" class="form-label">Last Name*</label>
+                                <label for="last_name" class="form-label">Фамилия*</label>
                                 <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo $last_name; ?>" required>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="phone" class="form-label">Phone Number</label>
+                            <label for="phone" class="form-label">Номер телефона</label>
                             <input type="text" class="form-control" id="phone" name="phone" value="<?php echo $phone; ?>">
                         </div>
                         
                         <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
+                            <label for="address" class="form-label">Адрес</label>
                             <textarea class="form-control" id="address" name="address" rows="3"><?php echo $address; ?></textarea>
                         </div>
                         
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Register</button>
+                            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
                         </div>
                     </form>
                     
                     <?php endif; ?>
                 </div>
                 <div class="card-footer text-center">
-                    <p class="mb-0">Already have an account? <a href="login.php">Login</a></p>
+                    <p class="mb-0">Уже есть аккаунт? <a href="login.php">Войти</a></p>
                 </div>
             </div>
         </div>

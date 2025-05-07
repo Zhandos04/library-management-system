@@ -27,12 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['create_user'])) {
     $role = trim($_POST['role']);
     
     if (empty($username) || empty($password) || empty($role)) {
-        $error = "All fields are required.";
+        $error = "Все поля обязательны для заполнения.";
     } else {
         if ($auth->register($username, $password, $role)) {
-            $success = "User created successfully.";
+            $success = "Пользователь успешно создан.";
         } else {
-            $error = "Failed to create user. Username may already exist.";
+            $error = "Не удалось создать пользователя. Возможно, имя пользователя уже существует.";
         }
     }
 }
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_user'])) {
     $role = trim($_POST['role']);
     
     if (empty($user_id) || empty($role)) {
-        $error = "User ID and role are required.";
+        $error = "ID пользователя и роль обязательны.";
     } else {
         $query = "UPDATE users SET role = ? WHERE id = ?";
         $stmt = $db->prepare($query);
@@ -51,9 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_user'])) {
         $stmt->bindParam(2, $user_id);
         
         if ($stmt->execute()) {
-            $success = "User role updated successfully.";
+            $success = "Роль пользователя успешно обновлена.";
         } else {
-            $error = "Failed to update user role.";
+            $error = "Не удалось обновить роль пользователя.";
         }
     }
 }
@@ -63,9 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_user'])) {
     $user_id = (int)$_POST['user_id'];
     
     if (empty($user_id)) {
-        $error = "User ID is required.";
+        $error = "ID пользователя обязателен.";
     } elseif ($user_id == $auth->getCurrentUserId()) {
-        $error = "You cannot delete your own account.";
+        $error = "Вы не можете удалить свою собственную учетную запись.";
     } else {
         // Check if user has member profile
         $check_query = "SELECT id FROM members WHERE user_id = ?";
@@ -74,16 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_user'])) {
         $check_stmt->execute();
         
         if ($check_stmt->rowCount() > 0) {
-            $error = "Cannot delete user with associated member profile. Delete the member record first.";
+            $error = "Невозможно удалить пользователя с привязанным профилем читателя. Сначала удалите запись читателя.";
         } else {
             $query = "DELETE FROM users WHERE id = ?";
             $stmt = $db->prepare($query);
             $stmt->bindParam(1, $user_id);
             
             if ($stmt->execute()) {
-                $success = "User deleted successfully.";
+                $success = "Пользователь успешно удален.";
             } else {
-                $error = "Failed to delete user.";
+                $error = "Не удалось удалить пользователя.";
             }
         }
     }
@@ -95,9 +95,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'reset_fines') {
     $stmt = $db->prepare($query);
     
     if ($stmt->execute()) {
-        $success = "All fines have been reset successfully.";
+        $success = "Все штрафы успешно сброшены.";
     } else {
-        $error = "Failed to reset fines.";
+        $error = "Не удалось сбросить штрафы.";
     }
 }
 
@@ -107,9 +107,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'update_overdue') {
     $loan = new Loan($db);
     
     if ($loan->updateOverdueStatus()) {
-        $success = "Overdue book statuses updated successfully.";
+        $success = "Статусы просроченных книг успешно обновлены.";
     } else {
-        $error = "Failed to update overdue book statuses.";
+        $error = "Не удалось обновить статусы просроченных книг.";
     }
 }
 
@@ -168,7 +168,7 @@ $stats['total_fines'] = $loan_stats['total_fines'];
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Admin Panel</h1>
+        <h1>Панель администратора</h1>
     </div>
     
     <?php if (!empty($error)): ?>
@@ -184,7 +184,7 @@ $stats['total_fines'] = $loan_stats['total_fines'];
             <!-- System Overview -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">System Overview</h5>
+                    <h5 class="mb-0">Обзор системы</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -192,8 +192,8 @@ $stats['total_fines'] = $loan_stats['total_fines'];
                             <div class="card bg-light">
                                 <div class="card-body text-center">
                                     <h1 class="display-4"><?php echo $stats['total_books']; ?></h1>
-                                    <p class="mb-0">Books (<?php echo $stats['total_copies']; ?> copies)</p>
-                                    <p class="text-muted"><?php echo $stats['available_copies']; ?> available</p>
+                                    <p class="mb-0">Книги (<?php echo $stats['total_copies']; ?> экземпляров)</p>
+                                    <p class="text-muted"><?php echo $stats['available_copies']; ?> доступно</p>
                                 </div>
                             </div>
                         </div>
@@ -201,8 +201,8 @@ $stats['total_fines'] = $loan_stats['total_fines'];
                             <div class="card bg-light">
                                 <div class="card-body text-center">
                                     <h1 class="display-4"><?php echo $stats['total_members']; ?></h1>
-                                    <p class="mb-0">Members</p>
-                                    <p class="text-muted"><?php echo $stats['active_members']; ?> active</p>
+                                    <p class="mb-0">Читатели</p>
+                                    <p class="text-muted"><?php echo $stats['active_members']; ?> активных</p>
                                 </div>
                             </div>
                         </div>
@@ -210,8 +210,8 @@ $stats['total_fines'] = $loan_stats['total_fines'];
                             <div class="card bg-light">
                                 <div class="card-body text-center">
                                     <h1 class="display-4"><?php echo $stats['total_loans']; ?></h1>
-                                    <p class="mb-0">Total Loans</p>
-                                    <p class="text-muted"><?php echo $stats['active_loans']; ?> active, <?php echo $stats['overdue_books']; ?> overdue</p>
+                                    <p class="mb-0">Всего выдач</p>
+                                    <p class="text-muted"><?php echo $stats['active_loans']; ?> активных, <?php echo $stats['overdue_books']; ?> просроченных</p>
                                 </div>
                             </div>
                         </div>
@@ -221,13 +221,13 @@ $stats['total_fines'] = $loan_stats['total_fines'];
                         <div class="col-md-6">
                             <div class="card bg-light">
                                 <div class="card-body">
-                                    <h5 class="card-title">System Actions</h5>
+                                    <h5 class="card-title">Системные действия</h5>
                                     <div class="d-grid gap-2">
                                         <a href="admin.php?action=update_overdue" class="btn btn-warning">
-                                            <i class="fas fa-sync me-2"></i>Update Overdue Statuses
+                                            <i class="fas fa-sync me-2"></i>Обновить статусы просроченных
                                         </a>
-                                        <a href="admin.php?action=reset_fines" class="btn btn-danger" onclick="return confirm('Are you sure you want to reset all fines?')">
-                                            <i class="fas fa-dollar-sign me-2"></i>Reset All Fines
+                                        <a href="admin.php?action=reset_fines" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите сбросить все штрафы?')">
+                                            <i class="fas fa-dollar-sign me-2"></i>Сбросить все штрафы
                                         </a>
                                     </div>
                                 </div>
@@ -236,10 +236,10 @@ $stats['total_fines'] = $loan_stats['total_fines'];
                         <div class="col-md-6">
                             <div class="card bg-light">
                                 <div class="card-body">
-                                    <h5 class="card-title">Financial Overview</h5>
+                                    <h5 class="card-title">Финансовый обзор</h5>
                                     <div class="text-center">
-                                        <h2 class="text-success">$<?php echo number_format($stats['total_fines'], 2); ?></h2>
-                                        <p class="mb-0">Total Fines Collected</p>
+                                        <h2 class="text-success"><?php echo number_format($stats['total_fines'], 2); ?> р.</h2>
+                                        <p class="mb-0">Всего собрано штрафов</p>
                                     </div>
                                 </div>
                             </div>
@@ -251,18 +251,18 @@ $stats['total_fines'] = $loan_stats['total_fines'];
             <!-- User Management -->
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">User Management</h5>
+                    <h5 class="mb-0">Управление пользователями</h5>
                 </div>
                 <div class="card-body">
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Username</th>
-                                <th>Role</th>
-                                <th>Created</th>
-                                <th>Member Profile</th>
-                                <th>Actions</th>
+                                <th>Имя пользователя</th>
+                                <th>Роль</th>
+                                <th>Создан</th>
+                                <th>Профиль читателя</th>
+                                <th>Действия</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -272,15 +272,31 @@ $stats['total_fines'] = $loan_stats['total_fines'];
                                 <td><?php echo htmlspecialchars($user['username']); ?></td>
                                 <td>
                                     <span class="badge <?php echo $user['role'] == 'admin' ? 'bg-danger' : ($user['role'] == 'librarian' ? 'bg-warning text-dark' : 'bg-info'); ?>">
-                                        <?php echo ucfirst($user['role']); ?>
+                                        <?php
+                                        $role_text = '';
+                                        switch($user['role']) {
+                                            case 'admin':
+                                                $role_text = 'Администратор';
+                                                break;
+                                            case 'librarian':
+                                                $role_text = 'Библиотекарь';
+                                                break;
+                                            case 'user':
+                                                $role_text = 'Пользователь';
+                                                break;
+                                            default:
+                                                $role_text = ucfirst($user['role']);
+                                        }
+                                        echo $role_text;
+                                        ?>
                                     </span>
                                 </td>
-                                <td><?php echo date('d M Y', strtotime($user['created_at'])); ?></td>
+                                <td><?php echo date('d.m.Y', strtotime($user['created_at'])); ?></td>
                                 <td>
                                     <?php if($user['has_member_profile'] > 0): ?>
-                                    <span class="badge bg-success">Yes</span>
+                                    <span class="badge bg-success">Да</span>
                                     <?php else: ?>
-                                    <span class="badge bg-secondary">No</span>
+                                    <span class="badge bg-secondary">Нет</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -300,7 +316,7 @@ $stats['total_fines'] = $loan_stats['total_fines'];
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header bg-primary text-white">
-                                            <h5 class="modal-title">Edit User: <?php echo htmlspecialchars($user['username']); ?></h5>
+                                            <h5 class="modal-title">Редактировать пользователя: <?php echo htmlspecialchars($user['username']); ?></h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
@@ -308,17 +324,17 @@ $stats['total_fines'] = $loan_stats['total_fines'];
                                                 <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                                                 
                                                 <div class="mb-3">
-                                                    <label for="role<?php echo $user['id']; ?>" class="form-label">Role</label>
+                                                    <label for="role<?php echo $user['id']; ?>" class="form-label">Роль</label>
                                                     <select class="form-select" id="role<?php echo $user['id']; ?>" name="role">
-                                                        <option value="user" <?php if($user['role'] == 'user') echo 'selected'; ?>>User</option>
-                                                        <option value="librarian" <?php if($user['role'] == 'librarian') echo 'selected'; ?>>Librarian</option>
-                                                        <option value="admin" <?php if($user['role'] == 'admin') echo 'selected'; ?>>Admin</option>
+                                                        <option value="user" <?php if($user['role'] == 'user') echo 'selected'; ?>>Пользователь</option>
+                                                        <option value="librarian" <?php if($user['role'] == 'librarian') echo 'selected'; ?>>Библиотекарь</option>
+                                                        <option value="admin" <?php if($user['role'] == 'admin') echo 'selected'; ?>>Администратор</option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" name="update_user" class="btn btn-primary">Save Changes</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                                <button type="submit" name="update_user" class="btn btn-primary">Сохранить изменения</button>
                                             </div>
                                         </form>
                                     </div>
@@ -330,18 +346,18 @@ $stats['total_fines'] = $loan_stats['total_fines'];
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header bg-danger text-white">
-                                            <h5 class="modal-title">Delete User</h5>
+                                            <h5 class="modal-title">Удалить пользователя</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <p>Are you sure you want to delete the user <strong><?php echo htmlspecialchars($user['username']); ?></strong>?</p>
-                                            <p class="text-danger">This action cannot be undone.</p>
+                                            <p>Вы уверены, что хотите удалить пользователя <strong><?php echo htmlspecialchars($user['username']); ?></strong>?</p>
+                                            <p class="text-danger">Это действие нельзя отменить.</p>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                                             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                                                 <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                                <button type="submit" name="delete_user" class="btn btn-danger">Delete User</button>
+                                                <button type="submit" name="delete_user" class="btn btn-danger">Удалить пользователя</button>
                                             </form>
                                         </div>
                                     </div>
@@ -358,31 +374,31 @@ $stats['total_fines'] = $loan_stats['total_fines'];
             <!-- Create New User -->
             <div class="card mb-4">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Create New User</h5>
+                    <h5 class="mb-0">Создать нового пользователя</h5>
                 </div>
                 <div class="card-body">
                     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username*</label>
+                            <label for="username" class="form-label">Имя пользователя*</label>
                             <input type="text" class="form-control" id="username" name="username" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password*</label>
+                            <label for="password" class="form-label">Пароль*</label>
                             <input type="password" class="form-control" id="password" name="password" required>
-                            <small class="text-muted">Minimum 6 characters</small>
+                            <small class="text-muted">Минимум 6 символов</small>
                         </div>
                         <div class="mb-3">
-                            <label for="role" class="form-label">Role*</label>
+                            <label for="role" class="form-label">Роль*</label>
                             <select class="form-select" id="role" name="role" required>
-                                <option value="">-- Select Role --</option>
-                                <option value="user">User</option>
-                                <option value="librarian">Librarian</option>
-                                <option value="admin">Admin</option>
+                                <option value="">-- Выберите роль --</option>
+                                <option value="user">Пользователь</option>
+                                <option value="librarian">Библиотекарь</option>
+                                <option value="admin">Администратор</option>
                             </select>
                         </div>
                         <div class="d-grid">
                             <button type="submit" name="create_user" class="btn btn-success">
-                                <i class="fas fa-plus-circle me-2"></i>Create User
+                                <i class="fas fa-plus-circle me-2"></i>Создать пользователя
                             </button>
                         </div>
                     </form>
@@ -392,28 +408,28 @@ $stats['total_fines'] = $loan_stats['total_fines'];
             <!-- System Information -->
             <div class="card">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">System Information</h5>
+                    <h5 class="mb-0">Информация о системе</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-group">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>PHP Version</span>
+                            <span>Версия PHP</span>
                             <span class="badge bg-primary rounded-pill"><?php echo phpversion(); ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Database</span>
+                            <span>База данных</span>
                             <span class="badge bg-primary rounded-pill">MySQL</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Server Software</span>
+                            <span>Серверное ПО</span>
                             <span class="badge bg-primary rounded-pill"><?php echo $_SERVER['SERVER_SOFTWARE']; ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Current Date</span>
-                            <span class="badge bg-primary rounded-pill"><?php echo date('d M Y'); ?></span>
+                            <span>Текущая дата</span>
+                            <span class="badge bg-primary rounded-pill"><?php echo date('d.m.Y'); ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Logged in User</span>
+                            <span>Вход выполнен</span>
                             <span class="badge bg-primary rounded-pill"><?php echo $_SESSION['username']; ?></span>
                         </li>
                     </ul>

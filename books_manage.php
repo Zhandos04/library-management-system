@@ -1,4 +1,7 @@
 <?php
+// Включаем буферизацию вывода
+ob_start();
+
 // Include header
 include_once 'includes/header.php';
 
@@ -111,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             $book->cover_image = $imageUrl;
         } else {
-            $error = "Unable to upload cover image. Please check file format and size.";
+            $error = "Не удалось загрузить изображение обложки. Проверьте формат файла и размер.";
         }
     }
     
@@ -138,31 +141,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($book->generateDescription()) {
             $description = $book->description; // Update variable for display
         } else {
-            $error .= "Unable to generate book description. Using the existing one instead. ";
+            $error .= "Не удалось сгенерировать описание книги. Используется существующее. ";
         }
     }
     
     // Validate data
     if (empty($book->isbn) || empty($book->title) || empty($book->author)) {
-        $error .= "ISBN, Title and Author are required fields.";
+        $error .= "ISBN, Название и Автор - обязательные поля.";
     } else {
         if ($action == 'add') {
             // Create book
             if ($book->create()) {
-                $success = "Book was created successfully.";
+                $success = "Книга успешно добавлена.";
                 // Clear form data
                 $isbn = $title = $author = $category = $publication_year = $publisher = $description = $cover_image = '';
                 $total_copies = $available_copies = 1;
             } else {
-                $error = "Unable to create book. ISBN may already exist.";
+                $error = "Не удалось добавить книгу. Возможно, ISBN уже существует.";
             }
         } elseif ($action == 'edit') {
             // Update book
             $book->id = $book_id;
             if ($book->update()) {
-                $success = "Book was updated successfully.";
+                $success = "Книга успешно обновлена.";
             } else {
-                $error = "Unable to update book. ISBN may already exist.";
+                $error = "Не удалось обновить книгу. Возможно, ISBN уже существует.";
             }
         }
     }
@@ -183,14 +186,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Page title based on action
-$page_title = ($action == 'edit') ? 'Edit Book' : 'Add New Book';
+$page_title = ($action == 'edit') ? 'Редактирование книги' : 'Добавление новой книги';
 ?>
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><?php echo $page_title; ?></h1>
         <a href="books.php" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Books
+            <i class="fas fa-arrow-left me-2"></i>Вернуться к книгам
         </a>
     </div>
     
@@ -216,46 +219,46 @@ $page_title = ($action == 'edit') ? 'Edit Book' : 'Add New Book';
                                 <input type="text" class="form-control" id="isbn" name="isbn" value="<?php echo htmlspecialchars($isbn); ?>" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="publication_year" class="form-label">Publication Year</label>
+                                <label for="publication_year" class="form-label">Год издания</label>
                                 <input type="number" class="form-control" id="publication_year" name="publication_year" min="1000" max="<?php echo date('Y'); ?>" value="<?php echo htmlspecialchars($publication_year); ?>">
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="title" class="form-label">Title*</label>
+                            <label for="title" class="form-label">Название*</label>
                             <input type="text" class="form-control" id="title" name="title" value="<?php echo htmlspecialchars($title); ?>" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="author" class="form-label">Author*</label>
+                            <label for="author" class="form-label">Автор*</label>
                             <input type="text" class="form-control" id="author" name="author" value="<?php echo htmlspecialchars($author); ?>" required>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="category" class="form-label">Category</label>
+                                <label for="category" class="form-label">Категория</label>
                                 <input type="text" class="form-control" id="category" name="category" value="<?php echo htmlspecialchars($category); ?>">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="publisher" class="form-label">Publisher</label>
+                                <label for="publisher" class="form-label">Издательство</label>
                                 <input type="text" class="form-control" id="publisher" name="publisher" value="<?php echo htmlspecialchars($publisher); ?>">
                             </div>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="total_copies" class="form-label">Total Copies*</label>
+                                <label for="total_copies" class="form-label">Всего экземпляров*</label>
                                 <input type="number" class="form-control" id="total_copies" name="total_copies" min="1" value="<?php echo htmlspecialchars($total_copies); ?>" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="available_copies" class="form-label">Available Copies</label>
+                                <label for="available_copies" class="form-label">Доступно экземпляров</label>
                                 <input type="number" class="form-control" id="available_copies" value="<?php echo htmlspecialchars($available_copies); ?>" disabled>
-                                <small class="text-muted">This will be calculated automatically</small>
+                                <small class="text-muted">Будет рассчитано автоматически</small>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="description" class="form-label">Book Description</label>
+                            <label for="description" class="form-label">Описание книги</label>
                             <div class="input-group mb-2">
                                 <textarea class="form-control" id="description" name="description" rows="5"><?php echo htmlspecialchars($description); ?></textarea>
                             </div>
@@ -271,20 +274,20 @@ $page_title = ($action == 'edit') ? 'Edit Book' : 'Add New Book';
                     
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="cover_image" class="form-label">Cover Image</label>
+                            <label for="cover_image" class="form-label">Обложка книги</label>
                             <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/jpeg, image/png, image/jpg">
                             
                             <?php if (!empty($cover_image)): ?>
                             <div class="mt-2 text-center">
-                                <p>Current Cover:</p>
-                                <img src="<?php echo htmlspecialchars($cover_image); ?>" alt="Book Cover" class="img-thumbnail" style="max-height: 200px;">
+                                <p>Текущая обложка:</p>
+                                <img src="<?php echo htmlspecialchars($cover_image); ?>" alt="Обложка книги" class="img-thumbnail" style="max-height: 200px;">
                             </div>
                             <?php else: ?>
                             <div class="mt-2 text-center">
                                 <div class="bg-light p-4 border rounded" style="height: 200px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-book fa-5x text-secondary"></i>
                                 </div>
-                                <small class="text-muted">No cover image uploaded</small>
+                                <small class="text-muted">Нет загруженной обложки</small>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -293,9 +296,9 @@ $page_title = ($action == 'edit') ? 'Edit Book' : 'Add New Book';
                 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i><?php echo ($action == 'edit') ? 'Update Book' : 'Add Book'; ?>
+                        <i class="fas fa-save me-2"></i><?php echo ($action == 'edit') ? 'Обновить книгу' : 'Добавить книгу'; ?>
                     </button>
-                    <a href="books.php" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="books.php" class="btn btn-outline-secondary">Отмена</a>
                 </div>
             </form>
         </div>
@@ -305,4 +308,7 @@ $page_title = ($action == 'edit') ? 'Edit Book' : 'Add New Book';
 <?php
 // Include footer
 include_once 'includes/footer.php';
+
+// Выводим буфер и завершаем скрипт
+ob_end_flush();
 ?>

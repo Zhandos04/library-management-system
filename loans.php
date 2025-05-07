@@ -49,7 +49,7 @@ if ($action == 'checkout' && $book_id > 0) {
     // Get book details
     $book->id = $book_id;
     if (!$book->readOne() || $book->available_copies <= 0) {
-        $error = "Book is not available for checkout.";
+        $error = "Книга недоступна для выдачи.";
     } else {
         // If member_id not provided, show form to select member
         if ($member_id <= 0 && $auth->isLibrarian()) {
@@ -62,11 +62,11 @@ if ($action == 'checkout' && $book_id > 0) {
             $loan->due_date = date('Y-m-d', strtotime('+14 days')); // 2 weeks loan period
             
             if ($loan->checkoutBook()) {
-                $success = "Book has been checked out successfully.";
+                $success = "Книга успешно выдана.";
                 // Clear variables
                 $book_id = $member_id = 0;
             } else {
-                $error = "Unable to checkout book. Please try again.";
+                $error = "Не удалось выдать книгу. Пожалуйста, попробуйте еще раз.";
             }
         }
     }
@@ -78,10 +78,10 @@ if ($action == 'return' && $loan_id > 0 && $auth->isLibrarian()) {
     $loan->return_date = date('Y-m-d');
     
     if ($loan->returnBook()) {
-        $success = "Book has been returned successfully.";
+        $success = "Книга успешно возвращена.";
         $loan_id = 0;
     } else {
-        $error = "Unable to return book. Please try again.";
+        $error = "Не удалось вернуть книгу. Пожалуйста, попробуйте еще раз.";
     }
 }
 
@@ -111,11 +111,11 @@ if ($auth->isLibrarian()) {
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>
             <?php if ($filter == 'overdue'): ?>
-            Overdue Books
+            Просроченные книги
             <?php elseif (!$auth->isLibrarian()): ?>
-            My Loans
+            Мои книги
             <?php else: ?>
-            Loan Management
+            Управление выдачей
             <?php endif; ?>
         </h1>
         
@@ -123,16 +123,16 @@ if ($auth->isLibrarian()) {
         <div>
             <?php if ($filter == 'overdue'): ?>
             <a href="loans.php" class="btn btn-outline-primary me-2">
-                <i class="fas fa-list me-2"></i>All Loans
+                <i class="fas fa-list me-2"></i>Все выдачи
             </a>
             <?php else: ?>
             <a href="loans.php?filter=overdue" class="btn btn-outline-danger me-2">
-                <i class="fas fa-exclamation-circle me-2"></i>Overdue Books
+                <i class="fas fa-exclamation-circle me-2"></i>Просроченные
             </a>
             <?php endif; ?>
             
             <a href="loans.php?action=add" class="btn btn-success">
-                <i class="fas fa-plus-circle me-2"></i>New Loan
+                <i class="fas fa-plus-circle me-2"></i>Новая выдача
             </a>
         </div>
         <?php endif; ?>
@@ -150,7 +150,7 @@ if ($auth->isLibrarian()) {
     <!-- Checkout Form (for librarians to select member) -->
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Checkout Book: <?php echo htmlspecialchars($book->title); ?></h5>
+            <h5 class="mb-0">Выдача книги: <?php echo htmlspecialchars($book->title); ?></h5>
         </div>
         <div class="card-body">
             <form action="loans.php" method="GET">
@@ -158,9 +158,9 @@ if ($auth->isLibrarian()) {
                 <input type="hidden" name="book_id" value="<?php echo $book_id; ?>">
                 
                 <div class="mb-3">
-                    <label for="member_id" class="form-label">Select Member</label>
+                    <label for="member_id" class="form-label">Выберите читателя</label>
                     <select class="form-select" id="member_id" name="member_id" required>
-                        <option value="">-- Select Member --</option>
+                        <option value="">-- Выберите читателя --</option>
                         <?php
                         $members_query = "SELECT id, first_name, last_name, email FROM members WHERE membership_status = 'active' ORDER BY last_name, first_name";
                         $members_stmt = $db->prepare($members_query);
@@ -177,33 +177,33 @@ if ($auth->isLibrarian()) {
                 </div>
                 
                 <div class="mb-3">
-                    <label class="form-label">Book Details</label>
+                    <label class="form-label">Информация о книге</label>
                     <div class="card">
                         <div class="card-body">
-                            <p><strong>Title:</strong> <?php echo htmlspecialchars($book->title); ?></p>
-                            <p><strong>Author:</strong> <?php echo htmlspecialchars($book->author); ?></p>
+                            <p><strong>Название:</strong> <?php echo htmlspecialchars($book->title); ?></p>
+                            <p><strong>Автор:</strong> <?php echo htmlspecialchars($book->author); ?></p>
                             <p><strong>ISBN:</strong> <?php echo htmlspecialchars($book->isbn); ?></p>
-                            <p><strong>Available Copies:</strong> <?php echo $book->available_copies; ?></p>
+                            <p><strong>Доступно экземпляров:</strong> <?php echo $book->available_copies; ?></p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="mb-3">
-                    <label class="form-label">Loan Period</label>
+                    <label class="form-label">Период выдачи</label>
                     <div class="card">
                         <div class="card-body">
-                            <p><strong>Checkout Date:</strong> <?php echo date('d M Y'); ?></p>
-                            <p><strong>Due Date:</strong> <?php echo date('d M Y', strtotime('+14 days')); ?></p>
-                            <p class="text-muted"><small>Standard loan period is 14 days</small></p>
+                            <p><strong>Дата выдачи:</strong> <?php echo date('d.m.Y'); ?></p>
+                            <p><strong>Срок возврата:</strong> <?php echo date('d.m.Y', strtotime('+14 days')); ?></p>
+                            <p class="text-muted"><small>Стандартный срок выдачи - 14 дней</small></p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-check-circle me-2"></i>Complete Checkout
+                        <i class="fas fa-check-circle me-2"></i>Оформить выдачу
                     </button>
-                    <a href="books.php" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="books.php" class="btn btn-outline-secondary">Отмена</a>
                 </div>
             </form>
         </div>
@@ -212,7 +212,7 @@ if ($auth->isLibrarian()) {
     <!-- New Loan Form -->
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Issue New Loan</h5>
+            <h5 class="mb-0">Оформление новой выдачи</h5>
         </div>
         <div class="card-body">
             <form action="loans.php" method="GET">
@@ -220,9 +220,9 @@ if ($auth->isLibrarian()) {
                 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="book_id" class="form-label">Select Book</label>
+                        <label for="book_id" class="form-label">Выберите книгу</label>
                         <select class="form-select" id="book_id" name="book_id" required>
-                            <option value="">-- Select Book --</option>
+                            <option value="">-- Выберите книгу --</option>
                             <?php
                             $books_query = "SELECT id, title, author, available_copies FROM books WHERE available_copies > 0 ORDER BY title";
                             $books_stmt = $db->prepare($books_query);
@@ -230,8 +230,8 @@ if ($auth->isLibrarian()) {
                             
                             while ($book_row = $books_stmt->fetch(PDO::FETCH_ASSOC)) {
                                 echo '<option value="' . $book_row['id'] . '">' . 
-                                    htmlspecialchars($book_row['title']) . ' by ' . htmlspecialchars($book_row['author']) . 
-                                    ' (' . $book_row['available_copies'] . ' available)' . 
+                                    htmlspecialchars($book_row['title']) . ' - ' . htmlspecialchars($book_row['author']) . 
+                                    ' (' . $book_row['available_copies'] . ' экз.)' . 
                                     '</option>';
                             }
                             ?>
@@ -239,9 +239,9 @@ if ($auth->isLibrarian()) {
                     </div>
                     
                     <div class="col-md-6 mb-3">
-                        <label for="member_id" class="form-label">Select Member</label>
+                        <label for="member_id" class="form-label">Выберите читателя</label>
                         <select class="form-select" id="member_id" name="member_id" required>
-                            <option value="">-- Select Member --</option>
+                            <option value="">-- Выберите читателя --</option>
                             <?php
                             $members_query = "SELECT id, first_name, last_name, email FROM members WHERE membership_status = 'active' ORDER BY last_name, first_name";
                             $members_stmt = $db->prepare($members_query);
@@ -261,9 +261,9 @@ if ($auth->isLibrarian()) {
                 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-arrow-right me-2"></i>Proceed to Checkout
+                        <i class="fas fa-arrow-right me-2"></i>Перейти к оформлению
                     </button>
-                    <a href="loans.php" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="loans.php" class="btn btn-outline-secondary">Отмена</a>
                 </div>
             </form>
         </div>
@@ -275,11 +275,11 @@ if ($auth->isLibrarian()) {
     <div class="card">
         <div class="card-header bg-primary text-white">
             <?php if ($filter == 'overdue'): ?>
-            <h5 class="mb-0">Overdue Books (<?php echo $stmt->rowCount(); ?> total)</h5>
+            <h5 class="mb-0">Просроченные книги (всего: <?php echo $stmt->rowCount(); ?>)</h5>
             <?php elseif (!$auth->isLibrarian()): ?>
-            <h5 class="mb-0">My Loan History</h5>
+            <h5 class="mb-0">История моих книг</h5>
             <?php else: ?>
-            <h5 class="mb-0">All Loans</h5>
+            <h5 class="mb-0">Все выдачи</h5>
             <?php endif; ?>
         </div>
         <div class="card-body">
@@ -288,16 +288,16 @@ if ($auth->isLibrarian()) {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Book</th>
+                            <th>Книга</th>
                             <?php if ($auth->isLibrarian()): ?>
-                            <th>Member</th>
+                            <th>Читатель</th>
                             <?php endif; ?>
-                            <th>Checkout Date</th>
-                            <th>Due Date</th>
-                            <th>Return Date</th>
-                            <th>Status</th>
-                            <th>Fine</th>
-                            <th>Actions</th>
+                            <th>Дата выдачи</th>
+                            <th>Срок возврата</th>
+                            <th>Дата возврата</th>
+                            <th>Статус</th>
+                            <th>Штраф</th>
+                            <th>Действия</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -308,7 +308,7 @@ if ($auth->isLibrarian()) {
                                 <?php if (isset($row['book_title'])): ?>
                                 <a href="book_detail.php?id=<?php echo $row['book_id']; ?>"><?php echo htmlspecialchars($row['book_title']); ?></a>
                                 <?php else: ?>
-                                <a href="book_detail.php?id=<?php echo $row['book_id']; ?>">Book #<?php echo $row['book_id']; ?></a>
+                                <a href="book_detail.php?id=<?php echo $row['book_id']; ?>">Книга #<?php echo $row['book_id']; ?></a>
                                 <?php endif; ?>
                             </td>
                             <?php if ($auth->isLibrarian()): ?>
@@ -316,15 +316,15 @@ if ($auth->isLibrarian()) {
                                 <?php if (isset($row['member_name'])): ?>
                                 <a href="member_detail.php?id=<?php echo $row['member_id']; ?>"><?php echo htmlspecialchars($row['member_name']); ?></a>
                                 <?php else: ?>
-                                <a href="member_detail.php?id=<?php echo $row['member_id']; ?>">Member #<?php echo $row['member_id']; ?></a>
+                                <a href="member_detail.php?id=<?php echo $row['member_id']; ?>">Читатель #<?php echo $row['member_id']; ?></a>
                                 <?php endif; ?>
                             </td>
                             <?php endif; ?>
-                            <td><?php echo date('d M Y', strtotime($row['checkout_date'])); ?></td>
-                            <td><?php echo date('d M Y', strtotime($row['due_date'])); ?></td>
+                            <td><?php echo date('d.m.Y', strtotime($row['checkout_date'])); ?></td>
+                            <td><?php echo date('d.m.Y', strtotime($row['due_date'])); ?></td>
                             <td>
                                 <?php if (!empty($row['return_date'])): ?>
-                                <?php echo date('d M Y', strtotime($row['return_date'])); ?>
+                                <?php echo date('d.m.Y', strtotime($row['return_date'])); ?>
                                 <?php else: ?>
                                 -
                                 <?php endif; ?>
@@ -335,15 +335,15 @@ if ($auth->isLibrarian()) {
                                 switch($row['status']) {
                                     case 'checked_out':
                                         $status_class = 'bg-warning text-dark';
-                                        $status_text = 'Checked Out';
+                                        $status_text = 'На руках';
                                         break;
                                     case 'returned':
                                         $status_class = 'bg-success';
-                                        $status_text = 'Returned';
+                                        $status_text = 'Возвращена';
                                         break;
                                     case 'overdue':
                                         $status_class = 'bg-danger';
-                                        $status_text = 'Overdue';
+                                        $status_text = 'Просрочена';
                                         break;
                                     default:
                                         $status_class = 'bg-secondary';
@@ -356,15 +356,15 @@ if ($auth->isLibrarian()) {
                             </td>
                             <td>
                                 <?php if ($row['fine'] > 0): ?>
-                                <span class="text-danger">$<?php echo number_format($row['fine'], 2); ?></span>
+                                <span class="text-danger"><?php echo number_format($row['fine'], 2); ?> р.</span>
                                 <?php else: ?>
                                 -
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <?php if ($auth->isLibrarian() && $row['status'] == 'checked_out'): ?>
-                                <a href="loans.php?action=return&id=<?php echo $row['id']; ?>" class="btn btn-sm btn-success" onclick="return confirm('Confirm return of this book?')">
-                                    <i class="fas fa-undo"></i> Return
+                                <a href="loans.php?action=return&id=<?php echo $row['id']; ?>" class="btn btn-sm btn-success" onclick="return confirm('Подтвердить возврат этой книги?')">
+                                    <i class="fas fa-undo"></i> Вернуть
                                 </a>
                                 <?php endif; ?>
                             </td>
@@ -378,18 +378,18 @@ if ($auth->isLibrarian()) {
     <?php elseif (isset($stmt)): ?>
     <div class="alert alert-info">
         <?php if ($filter == 'overdue'): ?>
-        <h4 class="alert-heading">No overdue books!</h4>
-        <p>There are currently no overdue books.</p>
+        <h4 class="alert-heading">Нет просроченных книг!</h4>
+        <p>В настоящее время нет просроченных книг.</p>
         <?php elseif (!$auth->isLibrarian()): ?>
-        <h4 class="alert-heading">No loan history!</h4>
-        <p>You haven't borrowed any books yet.</p>
+        <h4 class="alert-heading">Нет истории выдач!</h4>
+        <p>Вы еще не брали книги.</p>
         <hr>
-        <p class="mb-0"><a href="books.php" class="alert-link">Browse books</a> to borrow.</p>
+        <p class="mb-0"><a href="books.php" class="alert-link">Просмотрите каталог</a>, чтобы взять книгу.</p>
         <?php else: ?>
-        <h4 class="alert-heading">No loans recorded!</h4>
-        <p>There are currently no book loans in the system.</p>
+        <h4 class="alert-heading">Нет записей о выдачах!</h4>
+        <p>В системе пока нет записей о выдачах книг.</p>
         <hr>
-        <p class="mb-0">Start by <a href="loans.php?action=add" class="alert-link">issuing a new loan</a>.</p>
+        <p class="mb-0">Начните с <a href="loans.php?action=add" class="alert-link">оформления новой выдачи</a>.</p>
         <?php endif; ?>
     </div>
     <?php endif; ?>

@@ -47,9 +47,9 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Book Details</h1>
+        <h1>Информация о книге</h1>
         <a href="books.php" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Books
+            <i class="fas fa-arrow-left me-2"></i>Вернуться к книгам
         </a>
     </div>
     
@@ -65,7 +65,7 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="text-center mb-3">
                                 <?php if (!empty($book->cover_image)): ?>
                                 <!-- Display book cover image -->
-                                <img src="<?php echo htmlspecialchars($book->cover_image); ?>" alt="Book Cover" class="img-thumbnail" style="max-height: 250px;">
+                                <img src="<?php echo htmlspecialchars($book->cover_image); ?>" alt="Обложка книги" class="img-thumbnail" style="max-height: 250px;">
                                 <?php else: ?>
                                 <!-- Placeholder book cover -->
                                 <div class="bg-light p-4 border rounded" style="height: 250px; display: flex; align-items: center; justify-content: center;">
@@ -76,20 +76,20 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="d-grid gap-2">
                                 <?php if($auth->isLoggedIn() && $book->available_copies > 0): ?>
                                 <a href="loans.php?action=checkout&book_id=<?php echo $book->id; ?>" class="btn btn-success">
-                                    <i class="fas fa-book-reader me-2"></i>Borrow Book
+                                    <i class="fas fa-book-reader me-2"></i>Взять книгу
                                 </a>
                                 <?php elseif($book->available_copies <= 0): ?>
                                 <button class="btn btn-secondary" disabled>
-                                    <i class="fas fa-times-circle me-2"></i>Not Available
+                                    <i class="fas fa-times-circle me-2"></i>Нет в наличии
                                 </button>
                                 <?php endif; ?>
                                 
                                 <?php if($auth->isLibrarian()): ?>
                                 <a href="books_manage.php?action=edit&id=<?php echo $book->id; ?>" class="btn btn-warning">
-                                    <i class="fas fa-edit me-2"></i>Edit Book
+                                    <i class="fas fa-edit me-2"></i>Редактировать
                                 </a>
-                                <a href="books_manage.php?action=delete&id=<?php echo $book->id; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this book?')">
-                                    <i class="fas fa-trash me-2"></i>Delete Book
+                                <a href="books_manage.php?action=delete&id=<?php echo $book->id; ?>" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить эту книгу?')">
+                                    <i class="fas fa-trash me-2"></i>Удалить
                                 </a>
                                 <?php endif; ?>
                             </div>
@@ -102,45 +102,45 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <td><?php echo htmlspecialchars($book->isbn); ?></td>
                                     </tr>
                                     <tr>
-                                        <th>Author</th>
+                                        <th>Автор</th>
                                         <td><?php echo htmlspecialchars($book->author); ?></td>
                                     </tr>
                                     <tr>
-                                        <th>Category</th>
+                                        <th>Категория</th>
                                         <td><?php echo htmlspecialchars($book->category); ?></td>
                                     </tr>
                                     <tr>
-                                        <th>Publisher</th>
+                                        <th>Издательство</th>
                                         <td><?php echo htmlspecialchars($book->publisher); ?></td>
                                     </tr>
                                     <tr>
-                                        <th>Publication Year</th>
+                                        <th>Год издания</th>
                                         <td><?php echo htmlspecialchars($book->publication_year); ?></td>
                                     </tr>
                                     <tr>
-                                        <th>Total Copies</th>
+                                        <th>Всего экземпляров</th>
                                         <td><?php echo htmlspecialchars($book->total_copies); ?></td>
                                     </tr>
                                     <tr>
-                                        <th>Available Copies</th>
+                                        <th>Доступно</th>
                                         <td>
                                             <?php if($book->available_copies > 0): ?>
-                                            <span class="badge bg-success"><?php echo $book->available_copies; ?> Available</span>
+                                            <span class="badge bg-success"><?php echo $book->available_copies; ?> доступно</span>
                                             <?php else: ?>
-                                            <span class="badge bg-danger">Not Available</span>
+                                            <span class="badge bg-danger">Нет в наличии</span>
                                             <?php endif; ?>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th>Added On</th>
-                                        <td><?php echo date('d M Y', strtotime($book->created_at)); ?></td>
+                                        <th>Добавлена</th>
+                                        <td><?php echo date('d.m.Y', strtotime($book->created_at)); ?></td>
                                     </tr>
                                 </tbody>
                             </table>
                             
                             <?php if (!empty($book->description)): ?>
                             <div class="mt-3">
-                                <h5>Description</h5>
+                                <h5>Описание</h5>
                                 <p><?php echo nl2br(htmlspecialchars($book->description)); ?></p>
                             </div>
                             <?php endif; ?>
@@ -154,7 +154,7 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php if($auth->isLibrarian() && count($loan_history) > 0): ?>
             <div class="card">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Loan History</h5>
+                    <h5 class="mb-0">История выдачи</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-group">
@@ -163,17 +163,17 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <strong><?php echo htmlspecialchars($loan['member_name']); ?></strong><br>
-                                    <small>Checkout: <?php echo date('d M Y', strtotime($loan['checkout_date'])); ?></small><br>
-                                    <small>Due: <?php echo date('d M Y', strtotime($loan['due_date'])); ?></small>
+                                    <small>Выдана: <?php echo date('d.m.Y', strtotime($loan['checkout_date'])); ?></small><br>
+                                    <small>Срок: <?php echo date('d.m.Y', strtotime($loan['due_date'])); ?></small>
                                 </div>
                                 <div>
                                     <?php if($loan['status'] == 'returned'): ?>
-                                    <span class="badge bg-success">Returned</span><br>
-                                    <small>on <?php echo date('d M Y', strtotime($loan['return_date'])); ?></small>
+                                    <span class="badge bg-success">Возвращена</span><br>
+                                    <small>Дата: <?php echo date('d.m.Y', strtotime($loan['return_date'])); ?></small>
                                     <?php elseif($loan['status'] == 'overdue'): ?>
-                                    <span class="badge bg-danger">Overdue</span>
+                                    <span class="badge bg-danger">Просрочена</span>
                                     <?php else: ?>
-                                    <span class="badge bg-warning text-dark">Checked Out</span>
+                                    <span class="badge bg-warning text-dark">На руках</span>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -186,7 +186,7 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             <div class="card mt-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Similar Books</h5>
+                    <h5 class="mb-0">Похожие книги</h5>
                 </div>
                 <div class="card-body">
                     <?php
@@ -212,7 +212,7 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <div class="text-center pt-2">
                                     <?php if (!empty($similar['cover_image'])): ?>
                                     <!-- Display book cover image -->
-                                    <img src="<?php echo htmlspecialchars($similar['cover_image']); ?>" alt="Book Cover" class="img-thumbnail" style="height: 100px;">
+                                    <img src="<?php echo htmlspecialchars($similar['cover_image']); ?>" alt="Обложка книги" class="img-thumbnail" style="height: 100px;">
                                     <?php else: ?>
                                     <!-- Placeholder book cover -->
                                     <div class="bg-light border rounded mx-auto" style="height: 100px; width: 70px; display: flex; align-items: center; justify-content: center;">
@@ -226,14 +226,14 @@ $loan_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <?php echo htmlspecialchars($similar['title']); ?>
                                         </a>
                                     </h6>
-                                    <p class="card-text small">by <?php echo htmlspecialchars($similar['author']); ?></p>
+                                    <p class="card-text small">Автор: <?php echo htmlspecialchars($similar['author']); ?></p>
                                 </div>
                             </div>
                         </div>
                         <?php endforeach; ?>
                     </div>
                     <?php else: ?>
-                    <p class="text-muted">No similar books found.</p>
+                    <p class="text-muted">Похожих книг не найдено.</p>
                     <?php endif; ?>
                 </div>
             </div>

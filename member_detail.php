@@ -53,12 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_member'])) {
     
     // Simple validation
     if (empty($member->first_name) || empty($member->last_name) || empty($member->email)) {
-        $error = "First name, last name and email are required.";
+        $error = "Имя, фамилия и email обязательны для заполнения.";
     } else {
         if ($member->update()) {
-            $success = "Member updated successfully.";
+            $success = "Информация о читателе успешно обновлена.";
         } else {
-            $error = "Unable to update member. Please try again.";
+            $error = "Не удалось обновить информацию о читателе. Пожалуйста, попробуйте еще раз.";
         }
     }
 }
@@ -92,13 +92,13 @@ foreach ($loan_history as $loan) {
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Member Details</h1>
+        <h1>Карточка читателя</h1>
         <div>
             <button class="btn btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#editMemberForm">
-                <i class="fas fa-edit me-2"></i>Edit Member
+                <i class="fas fa-edit me-2"></i>Редактировать
             </button>
             <a href="members.php" class="btn btn-outline-primary ms-2">
-                <i class="fas fa-arrow-left me-2"></i>Back to Members
+                <i class="fas fa-arrow-left me-2"></i>К списку читателей
             </a>
         </div>
     </div>
@@ -116,7 +116,7 @@ foreach ($loan_history as $loan) {
             <!-- Member Information -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Member Profile</h5>
+                    <h5 class="mb-0">Профиль читателя</h5>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
@@ -125,7 +125,23 @@ foreach ($loan_history as $loan) {
                         </div>
                         <h4><?php echo htmlspecialchars($member->first_name . ' ' . $member->last_name); ?></h4>
                         <span class="badge <?php echo $member->membership_status == 'active' ? 'bg-success' : ($member->membership_status == 'expired' ? 'bg-danger' : 'bg-warning text-dark'); ?>">
-                            <?php echo ucfirst($member->membership_status); ?>
+                            <?php 
+                            $status_text = '';
+                            switch($member->membership_status) {
+                                case 'active':
+                                    $status_text = 'Активен';
+                                    break;
+                                case 'expired':
+                                    $status_text = 'Истёк';
+                                    break;
+                                case 'suspended':
+                                    $status_text = 'Приостановлен';
+                                    break;
+                                default:
+                                    $status_text = ucfirst($member->membership_status);
+                            }
+                            echo $status_text;
+                            ?>
                         </span>
                     </div>
                     
@@ -135,23 +151,23 @@ foreach ($loan_history as $loan) {
                             <span><?php echo htmlspecialchars($member->email); ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-phone me-2"></i> Phone</span>
+                            <span><i class="fas fa-phone me-2"></i> Телефон</span>
                             <span><?php echo htmlspecialchars($member->phone); ?></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-calendar-alt me-2"></i> Member Since</span>
-                            <span><?php echo date('d M Y', strtotime($member->membership_date)); ?></span>
+                            <span><i class="fas fa-calendar-alt me-2"></i> Дата регистрации</span>
+                            <span><?php echo date('d.m.Y', strtotime($member->membership_date)); ?></span>
                         </li>
                     </ul>
                     
                     <div class="mt-3">
-                        <h6>Address:</h6>
+                        <h6>Адрес:</h6>
                         <p><?php echo nl2br(htmlspecialchars($member->address)); ?></p>
                     </div>
                     
                     <div class="d-grid gap-2 mt-3">
                         <a href="loans.php?action=add&member_id=<?php echo $member->id; ?>" class="btn btn-success">
-                            <i class="fas fa-book-reader me-2"></i>Issue New Loan
+                            <i class="fas fa-book-reader me-2"></i>Оформить выдачу
                         </a>
                     </div>
                 </div>
@@ -160,32 +176,32 @@ foreach ($loan_history as $loan) {
             <!-- Member Statistics -->
             <div class="card">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Member Statistics</h5>
+                    <h5 class="mb-0">Статистика читателя</h5>
                 </div>
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-6 mb-3">
                             <h2 class="h4"><?php echo $total_loans; ?></h2>
-                            <p class="text-muted">Total Loans</p>
+                            <p class="text-muted">Всего книг</p>
                         </div>
                         <div class="col-6 mb-3">
                             <h2 class="h4"><?php echo $active_loans_count; ?></h2>
-                            <p class="text-muted">Active Loans</p>
+                            <p class="text-muted">На руках</p>
                         </div>
                         <div class="col-6 mb-3">
                             <h2 class="h4"><?php echo $returned_count; ?></h2>
-                            <p class="text-muted">Returned</p>
+                            <p class="text-muted">Возвращено</p>
                         </div>
                         <div class="col-6 mb-3">
                             <h2 class="h4"><?php echo $overdue_count; ?></h2>
-                            <p class="text-muted">Overdue</p>
+                            <p class="text-muted">Просрочено</p>
                         </div>
                     </div>
                     
                     <div class="text-center mt-2">
-                        <h5>Total Fines:</h5>
+                        <h5>Сумма штрафов:</h5>
                         <h3 class="<?php echo $total_fines > 0 ? 'text-danger' : 'text-success'; ?>">
-                            $<?php echo number_format($total_fines, 2); ?>
+                            <?php echo number_format($total_fines, 2); ?> р.
                         </h3>
                     </div>
                 </div>
@@ -197,17 +213,17 @@ foreach ($loan_history as $loan) {
             <div class="collapse mb-4" id="editMemberForm">
                 <div class="card">
                     <div class="card-header bg-warning">
-                        <h5 class="mb-0">Edit Member</h5>
+                        <h5 class="mb-0">Редактирование читателя</h5>
                     </div>
                     <div class="card-body">
                         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"] . "?id=" . $member->id); ?>" method="post">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="first_name" class="form-label">First Name*</label>
+                                    <label for="first_name" class="form-label">Имя*</label>
                                     <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo htmlspecialchars($member->first_name); ?>" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="last_name" class="form-label">Last Name*</label>
+                                    <label for="last_name" class="form-label">Фамилия*</label>
                                     <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo htmlspecialchars($member->last_name); ?>" required>
                                 </div>
                             </div>
@@ -218,30 +234,30 @@ foreach ($loan_history as $loan) {
                             </div>
                             
                             <div class="mb-3">
-                                <label for="phone" class="form-label">Phone</label>
+                                <label for="phone" class="form-label">Телефон</label>
                                 <input type="text" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($member->phone); ?>">
                             </div>
                             
                             <div class="mb-3">
-                                <label for="address" class="form-label">Address</label>
+                                <label for="address" class="form-label">Адрес</label>
                                 <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($member->address); ?></textarea>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="membership_status" class="form-label">Membership Status*</label>
+                                <label for="membership_status" class="form-label">Статус*</label>
                                 <select class="form-select" id="membership_status" name="membership_status" required>
-                                    <option value="active" <?php if($member->membership_status == 'active') echo 'selected'; ?>>Active</option>
-                                    <option value="expired" <?php if($member->membership_status == 'expired') echo 'selected'; ?>>Expired</option>
-                                    <option value="suspended" <?php if($member->membership_status == 'suspended') echo 'selected'; ?>>Suspended</option>
+                                    <option value="active" <?php if($member->membership_status == 'active') echo 'selected'; ?>>Активен</option>
+                                    <option value="expired" <?php if($member->membership_status == 'expired') echo 'selected'; ?>>Истёк</option>
+                                    <option value="suspended" <?php if($member->membership_status == 'suspended') echo 'selected'; ?>>Приостановлен</option>
                                 </select>
                             </div>
                             
                             <div class="d-grid gap-2">
                                 <button type="submit" name="update_member" class="btn btn-warning">
-                                    <i class="fas fa-save me-2"></i>Update Member
+                                    <i class="fas fa-save me-2"></i>Обновить данные
                                 </button>
                                 <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#editMemberForm">
-                                    Cancel
+                                    Отмена
                                 </button>
                             </div>
                         </form>
@@ -252,7 +268,7 @@ foreach ($loan_history as $loan) {
             <!-- Active Loans -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Active Loans (<?php echo $active_loans_count; ?>)</h5>
+                    <h5 class="mb-0">Активные выдачи (<?php echo $active_loans_count; ?>)</h5>
                 </div>
                 <div class="card-body">
                     <?php if ($active_loans_count > 0): ?>
@@ -260,11 +276,11 @@ foreach ($loan_history as $loan) {
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Book Title</th>
-                                    <th>Checkout Date</th>
-                                    <th>Due Date</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th>Название книги</th>
+                                    <th>Дата выдачи</th>
+                                    <th>Срок возврата</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -273,8 +289,8 @@ foreach ($loan_history as $loan) {
                                     <td>
                                         <a href="book_detail.php?id=<?php echo $loan['book_id']; ?>"><?php echo htmlspecialchars($loan['book_title']); ?></a>
                                     </td>
-                                    <td><?php echo date('d M Y', strtotime($loan['checkout_date'])); ?></td>
-                                    <td><?php echo date('d M Y', strtotime($loan['due_date'])); ?></td>
+                                    <td><?php echo date('d.m.Y', strtotime($loan['checkout_date'])); ?></td>
+                                    <td><?php echo date('d.m.Y', strtotime($loan['due_date'])); ?></td>
                                     <td>
                                         <?php
                                         $today = new DateTime();
@@ -282,17 +298,17 @@ foreach ($loan_history as $loan) {
                                         $days_left = $today->diff($due_date)->format("%r%a");
                                         
                                         if ($days_left < 0) {
-                                            echo '<span class="badge bg-danger">Overdue by ' . abs($days_left) . ' days</span>';
+                                            echo '<span class="badge bg-danger">Просрочено на ' . abs($days_left) . ' дн.</span>';
                                         } elseif ($days_left <= 3) {
-                                            echo '<span class="badge bg-warning text-dark">' . $days_left . ' days left</span>';
+                                            echo '<span class="badge bg-warning text-dark">Осталось ' . $days_left . ' дн.</span>';
                                         } else {
-                                            echo '<span class="badge bg-success">' . $days_left . ' days left</span>';
+                                            echo '<span class="badge bg-success">Осталось ' . $days_left . ' дн.</span>';
                                         }
                                         ?>
                                     </td>
                                     <td>
-                                        <a href="loans.php?action=return&id=<?php echo $loan['id']; ?>" class="btn btn-sm btn-success" onclick="return confirm('Confirm return of this book?')">
-                                            <i class="fas fa-undo"></i> Return
+                                        <a href="loans.php?action=return&id=<?php echo $loan['id']; ?>" class="btn btn-sm btn-success" onclick="return confirm('Подтвердить возврат этой книги?')">
+                                            <i class="fas fa-undo"></i> Вернуть
                                         </a>
                                     </td>
                                 </tr>
@@ -301,7 +317,7 @@ foreach ($loan_history as $loan) {
                         </table>
                     </div>
                     <?php else: ?>
-                    <p class="text-muted">No active loans for this member.</p>
+                    <p class="text-muted">У этого читателя нет активных выдач.</p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -309,7 +325,7 @@ foreach ($loan_history as $loan) {
             <!-- Loan History -->
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Loan History</h5>
+                    <h5 class="mb-0">История выдач</h5>
                 </div>
                 <div class="card-body">
                     <?php if ($total_loans > 0): ?>
@@ -317,12 +333,12 @@ foreach ($loan_history as $loan) {
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Book Title</th>
-                                    <th>Checkout Date</th>
-                                    <th>Due Date</th>
-                                    <th>Return Date</th>
-                                    <th>Status</th>
-                                    <th>Fine</th>
+                                    <th>Название книги</th>
+                                    <th>Дата выдачи</th>
+                                    <th>Срок возврата</th>
+                                    <th>Дата возврата</th>
+                                    <th>Статус</th>
+                                    <th>Штраф</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -338,11 +354,11 @@ foreach ($loan_history as $loan) {
                                     <td>
                                         <a href="book_detail.php?id=<?php echo $loan['book_id']; ?>"><?php echo htmlspecialchars($loan['book_title']); ?></a>
                                     </td>
-                                    <td><?php echo date('d M Y', strtotime($loan['checkout_date'])); ?></td>
-                                    <td><?php echo date('d M Y', strtotime($loan['due_date'])); ?></td>
+                                    <td><?php echo date('d.m.Y', strtotime($loan['checkout_date'])); ?></td>
+                                    <td><?php echo date('d.m.Y', strtotime($loan['due_date'])); ?></td>
                                     <td>
                                         <?php if (!empty($loan['return_date'])): ?>
-                                        <?php echo date('d M Y', strtotime($loan['return_date'])); ?>
+                                        <?php echo date('d.m.Y', strtotime($loan['return_date'])); ?>
                                         <?php else: ?>
                                         -
                                         <?php endif; ?>
@@ -350,18 +366,19 @@ foreach ($loan_history as $loan) {
                                     <td>
                                         <?php
                                         $status_class = '';
+                                        $status_text = '';
                                         switch($loan['status']) {
                                             case 'checked_out':
                                                 $status_class = 'bg-warning text-dark';
-                                                $status_text = 'Checked Out';
+                                                $status_text = 'На руках';
                                                 break;
                                             case 'returned':
                                                 $status_class = 'bg-success';
-                                                $status_text = 'Returned';
+                                                $status_text = 'Возвращена';
                                                 break;
                                             case 'overdue':
                                                 $status_class = 'bg-danger';
-                                                $status_text = 'Overdue';
+                                                $status_text = 'Просрочена';
                                                 break;
                                             default:
                                                 $status_class = 'bg-secondary';
@@ -374,7 +391,7 @@ foreach ($loan_history as $loan) {
                                     </td>
                                     <td>
                                         <?php if ($loan['fine'] > 0): ?>
-                                        <span class="text-danger">$<?php echo number_format($loan['fine'], 2); ?></span>
+                                        <span class="text-danger"><?php echo number_format($loan['fine'], 2); ?> р.</span>
                                         <?php else: ?>
                                         -
                                         <?php endif; ?>
@@ -385,7 +402,7 @@ foreach ($loan_history as $loan) {
                         </table>
                     </div>
                     <?php else: ?>
-                    <p class="text-muted">No loan history for this member yet.</p>
+                    <p class="text-muted">У этого читателя пока нет истории выдач.</p>
                     <?php endif; ?>
                 </div>
             </div>
